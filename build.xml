@@ -1,0 +1,102 @@
+<project name="electronic_db" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:if="ant:if" xmlns:unless="ant:unless">
+
+	<!-- Defintions -->
+
+	<property name="version" value="0.8.11" />
+	<property name="build" value=".build" />
+	<property name="bin" value="${build}/bin" />
+	<property name="compiled" value="${build}/.class" />
+
+	<!-- Macros -->
+
+	<macrodef name="m_copylib">
+		<attribute name="name" />
+		<sequential>
+			<copy todir="${bin}" verbose="true">
+				<fileset dir="lib">
+					<include name="@{name}" />
+					<exclude name="*sources*.jar" />
+				</fileset>
+			</copy>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="m_build_bin">
+		<attribute name="src" />
+		<attribute name="dst" default="@{src}-${version}.jar" />
+		<attribute name="includes" default="" />
+		<attribute name="excludes" default="" />
+		<attribute name="main" default="" />
+		<sequential>
+			<pathconvert property="@{src}.classpath" pathsep=" ">
+				<path>
+					<fileset dir="${bin}" includes="@{includes}" excludes="@{excludes}" />
+				</path>
+				<mapper>
+					<chainedmapper>
+						<flattenmapper />
+						<globmapper from="*.jar" to="*.jar" />
+					</chainedmapper>
+				</mapper>
+			</pathconvert>
+			<mkdir dir="${compiled}/@{src}" />
+			<javac srcdir="@{src}" destdir="${compiled}/@{src}" debug="on" encoding="utf-8" includeantruntime="false" excludes="">
+				<classpath refid="bin_jars" />
+				<exclude name="test/**" />
+			</javac>
+			<jar destfile="${bin}/@{dst}">
+				<fileset dir="${compiled}/@{src}" />
+				<fileset dir="@{src}" includes="**/*.properties" />
+				<manifest>
+					<attribute name="Main-Class" value="@{main}" unless:blank="@{main}" />
+					<attribute name="Class-Path" value="${@{src}.classpath}" />
+				</manifest>
+			</jar>
+		</sequential>
+	</macrodef>
+
+	<!-- tasks -->
+
+	<path id="bin_jars">
+		<fileset dir="${bin}" includes="*.jar" />
+	</path>
+
+	<target name="resolve" description="--> retreive dependencies with ivy">
+		<ivy:retrieve />
+	</target>
+
+	<target name="clean">
+		<delete dir="${build}" />
+	</target>
+
+	<target name="pre" depends="clean">
+		<mkdir dir="${bin}" />
+		<mkdir dir="${compiled}" />
+	</target>
+
+	<target name="libs" depends="pre">
+		<m_copylib name="*.jar" />
+	</target>
+
+	<target name="build-freerouter" depends="pre" >
+		<m_build_bin src="freerouter" />
+	</target>
+
+	<target name="build-web" depends="libs,build-freerouter">
+		<m_build_bin src="easyrouter" includes="jetty*.jar,javax*.jar,websocket*.jar,freerouter*.jar" main="com.easyeda.router.RouterServer" />
+		<copydir src="config" dest="${build}/config" />
+		<copydir src="wwwroot" dest="${build}/wwroot" />
+	</target>
+
+	<target name="build-client" depends="libs,build-freerouter">
+		<m_build_bin src="easyrouter" includes="jetty*.jar,javax*.jar,websocket*.jar,freerouter*.jar" main="com.easyeda.router.RouterServer" />
+		<m_build_bin src="bootstrap" includes="easyrouter*.jar" main="com.easyeda.bootstrap.AutoRouter" dst="bootstrap.jar" />
+		<property name="clientdir" value="${build}/EasyEDA Router v${version}" />
+		<mkdir dir="${clientdir}"/>
+		<move file="${bin}" tofile="${clientdir}/bin" />
+		<copydir src="config" dest="${clientdir}/config" />
+		<mkdir dir="${clientdir}/log" />
+		<copydir src="scripts" dest="${clientdir}" />
+	</target>
+
+</project>

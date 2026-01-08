@@ -1,0 +1,625 @@
+(pcb main.DSN
+    (resolution MIL 10000)
+    (structure
+        (boundary
+            (rect pcb
+                1550.000 2025.000 4860.000 4375.000
+            )
+        )
+        (boundary
+            (path signal 0.0
+                1555.000 4370.000
+                4855.000 4370.000
+                4855.000 2030.000
+                1555.000 2030.000
+                1555.000 4370.000
+            )
+        )
+        (via
+            Via0_TB_RoutingVias
+        )
+        (layer TopLayer 
+            (type signal) (direction horizontal)
+        )
+        (layer BottomLayer 
+            (type signal) (direction vertical)
+        )
+        (rule
+            (width 6.299)
+            (clearance 7.874)
+            (reorder starburst)
+        )
+        (grid wire 20.000)
+        (grid via 20.000)
+        (keepout 
+            (path signal 10.000 1555.000 4370.000 4855.000 4370.000)
+            (type normal)
+        )
+        (keepout 
+            (path signal 10.000 4855.000 2030.000 4855.000 4370.000)
+            (type normal)
+        )
+        (keepout 
+            (path signal 10.000 1555.000 2030.000 4855.000 2030.000)
+            (type normal)
+        )
+        (keepout 
+            (path signal 10.000 1555.000 2030.000 1555.000 4370.000)
+            (type normal)
+        )
+    )
+    (placement
+        (component RABBIT_Designator7
+            (place Designator7 3400.000 4040.000 front 0)        )
+        (component RJ45_U10
+            (place U10 4280.000 2300.000 front 0)        )
+        (component V2V_U9
+            (place U9 3880.000 2900.000 front 0)        )
+        (component CRYSTAL1_U8
+            (place U8 3940.000 3660.000 front 0)        )
+        (component CRYSTAL1_U7
+            (place U7 3000.000 2460.000 front 0)        )
+        (component DS1820_U6
+            (place U6 2080.000 4100.000 front 0)        )
+        (component SW2_U5
+            (place U5 1780.000 3260.000 front 0)        )
+        (component DS1820_U4
+            (place U4 1740.000 4100.000 front 0)        )
+        (component QFP44_U3
+            (place U3 2200.000 2600.000 front 0)        )
+        (component SOP20_U2
+            (place U2 2620.000 3640.000 front 0)        )
+        (component 0805_R9
+            (place R9 4542.000 3120.000 front 0)        )
+        (component 0805_R8
+            (place R8 3896.444 3120.000 front 0)        )
+        (component 0805_R7
+            (place R7 4025.555 3120.000 front 0)        )
+        (component 0805_R6
+            (place R6 3767.333 3030.000 front 0)        )
+        (component 0805_R5
+            (place R5 4154.667 3120.000 front 0)        )
+        (component 0805_R4
+            (place R4 4412.889 3120.000 front 0)        )
+        (component 0805_R3
+            (place R3 2135.000 3630.000 front 0)        )
+        (component 0805_R2
+            (place R2 4283.778 3120.000 front 0)        )
+        (component 0805_R1
+            (place R1 2045.000 3870.000 front 0)        )
+        (component MHDR1X4_V~SP~T~SP~R~SP~G
+            (place V~SP~T~SP~R~SP~G 1660.000 3860.000 front 0)        )
+        (component LED3_L3
+            (place L3 4720.000 2980.000 front 0)        )
+        (component LED3_L2
+            (place L2 4720.000 3220.000 front 0)        )
+        (component LED3_L1
+            (place L1 1700.000 3640.000 front 0)        )
+        (component DC2.1_J1
+            (place J1 1760.000 2360.000 front 0)        )
+        (component 0805_C10
+            (place C10 3395.000 2185.000 front 0)        )
+        (component 0805_C9
+            (place C9 3395.000 2325.000 front 0)        )
+        (component 0805_C8
+            (place C8 3395.000 2745.000 front 0)        )
+        (component 0805_C7
+            (place C7 3638.222 3030.000 front 0)        )
+        (component 0805_C6
+            (place C6 3509.111 3030.000 front 0)        )
+        (component 0805_C5
+            (place C5 3380.000 3030.000 front 0)        )
+        (component 0805_C4
+            (place C4 3305.000 2465.000 front 0)        )
+        (component 0805_C3
+            (place C3 3305.000 2605.000 front 0)        )
+        (component CD4_C2
+            (place C2 1935.000 2875.000 front 0)        )
+        (component CD4_C1
+            (place C1 1695.000 2875.000 front 0)        )
+    )
+    (library
+        (image RABBIT_Designator7
+        )
+        (image RJ45_U10
+            (pin Pad16 10 115.000 475.000  (rotate 90))
+            (pin Pad16 9 115.000 -125.000  (rotate 90))
+            (pin Pad17 2 -100.000 50.000  (rotate 90))
+            (pin Pad17 3 0.000 100.000  (rotate 90))
+            (pin Pad17 4 -100.000 150.000  (rotate 90))
+            (pin Pad17 5 0.000 200.000  (rotate 90))
+            (pin Pad17 6 -100.000 250.000  (rotate 90))
+            (pin Pad17 7 0.000 300.000  (rotate 90))
+            (pin Pad17 8 -100.000 350.000  (rotate 90))
+            (pin Pad18 11 250.000 -50.000  (rotate 90))
+            (pin Pad18 12 250.000 400.000  (rotate 90))
+            (pin Pad17 1 0.000 0.000  (rotate 90))
+        )
+        (image V2V_U9
+            (pin Pad14 3 51.000 -543.000 )
+            (pin Pad15 1 51.000 -743.000 )
+            (pin Pad14 6 51.000 -43.000 )
+            (pin Pad14 4 51.000 -243.000 )
+            (pin Pad14 12 -249.000 -743.000 )
+            (pin Pad14 11 -249.000 -643.000 )
+            (pin Pad14 10 -249.000 -543.000 )
+            (pin Pad14 9 -249.000 -243.000 )
+            (pin Pad14 8 -249.000 -143.000 )
+            (pin Pad14 7 -249.000 -43.000 )
+            (pin Pad14 2 51.000 -643.000 )
+            (pin Pad14 5 51.000 -143.000 )
+        )
+        (image CRYSTAL1_U8
+            (pin Pad25 1 0.000 0.000 )
+            (pin Pad25 2 -200.000 0.000 )
+        )
+        (image CRYSTAL1_U7
+            (pin Pad24 1 0.000 0.000  (rotate 270))
+            (pin Pad24 2 0.000 -200.000  (rotate 270))
+        )
+        (image DS1820_U6
+            (pin Pad13 1 100.000 0.000  (rotate 90))
+            (pin Pad13 3 -100.000 0.000  (rotate 90))
+            (pin Pad13 2 0.000 0.000  (rotate 90))
+        )
+        (image SW2_U5
+            (pin Pad23 4 -128.740 -59.842 )
+            (pin Pad23 3 122.836 -59.054 )
+            (pin Pad23 1 -128.740 116.536 )
+            (pin Pad23 2 123.622 117.324 )
+        )
+        (image DS1820_U4
+            (pin Pad13 1 100.000 0.000  (rotate 90))
+            (pin Pad13 3 -100.000 0.000  (rotate 90))
+            (pin Pad13 2 0.000 0.000  (rotate 90))
+        )
+        (image QFP44_U3
+            (pin Pad3 33 490.000 0.000 )
+            (pin Pad3 32 490.000 -31.000 )
+            (pin Pad3 31 490.000 -63.000 )
+            (pin Pad3 30 490.000 -94.000 )
+            (pin Pad3 29 490.000 -126.000 )
+            (pin Pad3 28 490.000 -157.000 )
+            (pin Pad3 27 490.000 -188.000 )
+            (pin Pad3 26 490.000 -220.000 )
+            (pin Pad3 25 490.000 -251.000 )
+            (pin Pad3 24 490.000 -283.000 )
+            (pin Pad3 23 490.000 -314.000 )
+            (pin Pad4 22 402.000 -402.000 )
+            (pin Pad4 21 371.000 -402.000 )
+            (pin Pad4 20 339.000 -402.000 )
+            (pin Pad4 19 308.000 -402.000 )
+            (pin Pad4 18 276.000 -402.000 )
+            (pin Pad4 17 245.000 -402.000 )
+            (pin Pad4 16 214.000 -402.000 )
+            (pin Pad4 15 182.000 -402.000 )
+            (pin Pad4 14 151.000 -402.000 )
+            (pin Pad4 13 119.000 -402.000 )
+            (pin Pad4 12 88.000 -402.000 )
+            (pin Pad3 11 0.000 -314.000 )
+            (pin Pad3 10 0.000 -283.000 )
+            (pin Pad3 9 0.000 -251.000 )
+            (pin Pad3 8 0.000 -220.000 )
+            (pin Pad3 7 0.000 -188.000 )
+            (pin Pad3 6 0.000 -157.000 )
+            (pin Pad3 5 0.000 -126.000 )
+            (pin Pad3 4 0.000 -94.000 )
+            (pin Pad3 3 0.000 -63.000 )
+            (pin Pad3 2 0.000 -31.000 )
+            (pin Pad3 1 0.000 0.000 )
+            (pin Pad4 44 88.000 88.000 )
+            (pin Pad4 43 119.000 88.000 )
+            (pin Pad4 42 151.000 88.000 )
+            (pin Pad4 41 182.000 88.000 )
+            (pin Pad4 40 214.000 88.000 )
+            (pin Pad4 39 245.000 88.000 )
+            (pin Pad4 38 276.000 88.000 )
+            (pin Pad4 37 308.000 88.000 )
+            (pin Pad4 36 339.000 88.000 )
+            (pin Pad4 35 371.000 88.000 )
+            (pin Pad4 34 402.000 88.000 )
+        )
+        (image SOP20_U2
+            (pin Pad1 1 0.000 0.000  (rotate 90))
+            (pin Pad2 2 50.000 0.000  (rotate 90))
+            (pin Pad2 3 100.000 0.000  (rotate 90))
+            (pin Pad2 4 150.000 0.000  (rotate 90))
+            (pin Pad2 5 200.000 0.000  (rotate 90))
+            (pin Pad2 6 250.000 0.000  (rotate 90))
+            (pin Pad2 7 300.000 0.000  (rotate 90))
+            (pin Pad2 8 350.000 0.000  (rotate 90))
+            (pin Pad2 9 400.000 0.000  (rotate 90))
+            (pin Pad2 10 450.000 0.000  (rotate 90))
+            (pin Pad2 20 0.000 393.700  (rotate 90))
+            (pin Pad2 19 50.000 393.700  (rotate 90))
+            (pin Pad2 18 100.000 393.700  (rotate 90))
+            (pin Pad2 17 150.000 393.700  (rotate 90))
+            (pin Pad2 16 200.000 393.700  (rotate 90))
+            (pin Pad2 15 250.000 393.700  (rotate 90))
+            (pin Pad2 14 300.000 393.700  (rotate 90))
+            (pin Pad2 13 350.000 393.700  (rotate 90))
+            (pin Pad2 12 400.000 393.700  (rotate 90))
+            (pin Pad2 11 450.000 393.700  (rotate 90))
+        )
+        (image 0805_R9
+            (pin Pad6 1 0.000 0.000  (rotate 270))
+            (pin Pad6 2 0.000 -90.000  (rotate 270))
+        )
+        (image 0805_R8
+            (pin Pad6 1 0.000 0.000  (rotate 270))
+            (pin Pad6 2 0.000 -90.000  (rotate 270))
+        )
+        (image 0805_R7
+            (pin Pad6 1 0.001 0.000  (rotate 270))
+            (pin Pad6 2 0.001 -90.000  (rotate 270))
+        )
+        (image 0805_R6
+            (pin Pad8 1 0.001 0.000  (rotate 90))
+            (pin Pad8 2 0.001 90.000  (rotate 90))
+        )
+        (image 0805_R5
+            (pin Pad6 1 -0.001 0.000  (rotate 270))
+            (pin Pad6 2 -0.001 -90.000  (rotate 270))
+        )
+        (image 0805_R4
+            (pin Pad6 1 -0.001 0.000  (rotate 270))
+            (pin Pad6 2 -0.001 -90.000  (rotate 270))
+        )
+        (image 0805_R3
+            (pin Pad7 1 0.000 0.000 )
+            (pin Pad7 2 -90.000 0.000 )
+        )
+        (image 0805_R2
+            (pin Pad6 1 0.000 0.000  (rotate 270))
+            (pin Pad6 2 0.000 -90.000  (rotate 270))
+        )
+        (image 0805_R1
+            (pin Pad5 1 0.000 0.000 )
+            (pin Pad5 2 90.000 0.000 )
+        )
+        (image MHDR1X4_V~SP~T~SP~R~SP~G
+            (pin Pad11 1 0.000 0.000 )
+            (pin Pad12 2 50.000 0.000 )
+            (pin Pad12 3 100.000 0.000 )
+            (pin Pad12 4 150.000 0.000 )
+        )
+        (image LED3_L3
+            (pin Pad22 A -53.000 -3.500 )
+            (pin Pad22 K 47.500 -2.500 )
+        )
+        (image LED3_L2
+            (pin Pad22 A -53.000 -3.500 )
+            (pin Pad22 K 47.500 -2.500 )
+        )
+        (image LED3_L1
+            (pin Pad21 A 53.000 3.500 )
+            (pin Pad21 K -47.500 2.500 )
+        )
+        (image DC2.1_J1
+            (pin Pad9 3 0.000 15.000  (rotate 270))
+            (pin Pad10 2 150.000 140.000  (rotate 270))
+            (pin Pad9 1 0.000 270.000  (rotate 270))
+        )
+        (image 0805_C10
+            (pin Pad7 1 0.000 0.000 )
+            (pin Pad7 2 -90.000 0.000 )
+        )
+        (image 0805_C9
+            (pin Pad7 1 0.000 0.000 )
+            (pin Pad7 2 -90.000 0.000 )
+        )
+        (image 0805_C8
+            (pin Pad7 1 0.000 0.000 )
+            (pin Pad7 2 -90.000 0.000 )
+        )
+        (image 0805_C7
+            (pin Pad8 1 0.000 0.000  (rotate 90))
+            (pin Pad8 2 0.000 90.000  (rotate 90))
+        )
+        (image 0805_C6
+            (pin Pad8 1 0.001 0.000  (rotate 90))
+            (pin Pad8 2 0.001 90.000  (rotate 90))
+        )
+        (image 0805_C5
+            (pin Pad8 1 0.000 0.000  (rotate 90))
+            (pin Pad8 2 0.000 90.000  (rotate 90))
+        )
+        (image 0805_C4
+            (pin Pad5 1 0.000 0.000 )
+            (pin Pad5 2 90.000 0.000 )
+        )
+        (image 0805_C3
+            (pin Pad5 1 0.000 0.000 )
+            (pin Pad5 2 90.000 0.000 )
+        )
+        (image CD4_C2
+            (pin Pad20 2 40.000 0.000 )
+            (pin Pad20 1 -50.000 0.000 )
+        )
+        (image CD4_C1
+            (pin Pad19 2 -40.000 0.000 )
+            (pin Pad19 1 50.000 0.000 )
+        )
+        (padstack Via0_TB_RoutingVias
+            (shape (circle signal 31.496))
+        )
+        (padstack Pad1
+            (shape (rect TopLayer -27.559 -8.858 27.559 8.858))
+        )
+        (padstack Pad2
+            (shape (rect TopLayer -18.701 -8.858 18.701 8.858))
+            (shape (circle TopLayer 17.716 -18.701 0.000))
+            (shape (circle TopLayer 17.716 18.701 0.000))
+        )
+        (padstack Pad3
+            (shape (rect TopLayer -42.000 -8.000 42.000 8.000))
+            (shape (circle TopLayer 16.000 -42.000 0.000))
+            (shape (circle TopLayer 16.000 42.000 0.000))
+        )
+        (padstack Pad4
+            (shape (rect TopLayer -8.000 -42.000 8.000 42.000))
+            (shape (circle TopLayer 16.000 0.000 -42.000))
+            (shape (circle TopLayer 16.000 0.000 42.000))
+        )
+        (padstack Pad5
+            (shape (rect TopLayer -30.000 -25.000 30.000 25.000))
+        )
+        (padstack Pad6
+            (shape (rect TopLayer -30.000 -25.000 30.000 25.000))
+        )
+        (padstack Pad7
+            (shape (rect TopLayer -30.000 -25.000 30.000 25.000))
+        )
+        (padstack Pad8
+            (shape (rect TopLayer -30.000 -25.000 30.000 25.000))
+        )
+        (padstack Pad9
+            (shape (rect signal -59.055 -11.811 59.055 11.811))
+            (shape (circle signal 118.110 0.000 -11.811))
+            (shape (circle signal 118.110 0.000 11.811))
+        )
+        (padstack Pad10
+            (shape (rect signal -11.811 -59.055 11.811 59.055))
+            (shape (circle signal 118.110 -11.811 0.000))
+            (shape (circle signal 118.110 11.811 0.000))
+        )
+        (padstack Pad11
+            (shape (rect signal -19.685 -19.685 19.685 19.685))
+        )
+        (padstack Pad12
+            (shape (circle signal 39.370))
+        )
+        (padstack Pad13
+            (shape (circle signal 54.331))
+        )
+        (padstack Pad14
+            (shape (circle signal 50.000))
+        )
+        (padstack Pad15
+            (shape (rect signal -25.000 -25.000 25.000 25.000))
+        )
+        (padstack Pad16
+            (shape (circle signal 80.000))
+        )
+        (padstack Pad17
+            (shape (circle signal 62.000))
+        )
+        (padstack Pad18
+            (shape (circle signal 135.000))
+        )
+        (padstack Pad19
+            (shape (circle signal 51.181))
+        )
+        (padstack Pad20
+            (shape (circle signal 51.181))
+        )
+        (padstack Pad21
+            (shape (rect signal -25.000 -4.527 25.000 4.527))
+            (shape (circle signal 50.000 0.000 -4.527))
+            (shape (circle signal 50.000 0.000 4.527))
+        )
+        (padstack Pad22
+            (shape (rect signal -25.000 -4.527 25.000 4.527))
+            (shape (circle signal 50.000 0.000 -4.527))
+            (shape (circle signal 50.000 0.000 4.527))
+        )
+        (padstack Pad23
+            (shape (circle signal 78.740))
+        )
+        (padstack Pad24
+            (shape (circle signal 78.740))
+        )
+        (padstack Pad25
+            (shape (circle signal 78.740))
+        )
+    )
+    (network
+        (net VCC
+            (pins
+                J1-1 C1-1 U4-3 U5-1 V~SP~T~SP~R~SP~G-1 C2-1 U3-38 
+                U3-29 R1-1 U6-3 R5-2 U2-20 
+            )
+        )
+        (net TXD
+            (pins
+                V~SP~T~SP~R~SP~G-2 U3-7 
+            )
+        )
+        (net TPIN-
+            (pins
+                R6-2 U9-6 
+            )
+        )
+        (net TPIN+
+            (pins
+                R6-1 U9-4 
+            )
+        )
+        (net TEMP2
+            (pins
+                U6-2 U3-44 
+            )
+        )
+        (net TEMP1
+            (pins
+                U4-2 U3-43 
+            )
+        )
+        (net SLED
+            (pins
+                L1-K U3-42 
+            )
+        )
+        (net RXD
+            (pins
+                V~SP~T~SP~R~SP~G-3 U3-5 
+            )
+        )
+        (net RST_BTN
+            (pins
+                U5-4 U3-40 R3-2 
+            )
+        )
+        (net NetU9_12
+            (pins
+                U9-12 U10-1 
+            )
+        )
+        (net NetU9_10
+            (pins
+                U9-10 U10-2 
+            )
+        )
+        (net NetU9_9
+            (pins
+                U9-9 U10-3 
+            )
+        )
+        (net NetU9_7
+            (pins
+                U9-7 U10-6 
+            )
+        )
+        (net NetL3_A
+            (pins
+                R4-2 L3-A 
+            )
+        )
+        (net NetL2_A
+            (pins
+                R2-2 L2-A 
+            )
+        )
+        (net NetL1_A
+            (pins
+                L1-A R1-2 
+            )
+        )
+        (net NetC10_1
+            (pins
+                C10-1 U9-11 
+            )
+        )
+        (net NetC9_2
+            (pins
+                C9-2 U9-2 
+            )
+        )
+        (net NetC8_1
+            (pins
+                C8-1 U9-8 
+            )
+        )
+        (net NetC7_2
+            (pins
+                C7-2 U9-5 
+            )
+        )
+        (net NetC6_2
+            (pins
+                C6-2 U8-2 
+            )
+        )
+        (net NetC5_2
+            (pins
+                C5-2 U8-1 
+            )
+        )
+        (net NetC4_1
+            (pins
+                U3-15 U7-2 C4-1 
+            )
+        )
+        (net NetC3_1
+            (pins
+                U3-14 U7-1 C3-1 
+            )
+        )
+        (net NetC2_2
+            (pins
+                C2-2 U3-4 
+            )
+        )
+        (net GND
+            (pins
+                U3-16 C1-2 J1-3 C10-2 C8-2 R3-1 V~SP~T~SP~R~SP~G-4 
+                U4-1 U2-1 U2-10 U6-1 C5-1 C9-1 C4-2 C3-2 
+                L3-K C6-1 C7-1 R8-2 R7-2 R9-2 L2-K 
+            )
+        )
+        (net D7
+            (pins
+                U3-30 U2-9 
+            )
+        )
+        (net D6
+            (pins
+                U3-31 U2-8 
+            )
+        )
+        (net D5
+            (pins
+                U3-32 U2-7 
+            )
+        )
+        (net D4
+            (pins
+                U3-33 U2-6 
+            )
+        )
+        (net D3
+            (pins
+                U3-34 U2-5 
+            )
+        )
+        (net D2
+            (pins
+                U3-35 U2-4 
+            )
+        )
+        (net D1
+            (pins
+                U3-36 U2-3 
+            )
+        )
+        (net D0
+            (pins
+                U3-37 U2-2 
+            )
+        )
+        (net ALE
+            (pins
+                U3-27 U2-11 
+            )
+        )
+        (class All~SP~Nets
+            VCC TXD TPIN- TPIN+ TEMP2 TEMP1 SLED 
+            RXD RST_BTN NetU9_12 NetU9_10 NetU9_9 NetU9_7 NetL3_A NetL2_A 
+            NetL1_A NetC10_1 NetC9_2 NetC8_1 NetC7_2 NetC6_2 NetC5_2 NetC4_1 
+            NetC3_1 NetC2_2 GND D7 D6 D5 D4 D3 
+            D2 D1 D0 ALE 
+        )
+    )
+    (wiring
+    )
+)

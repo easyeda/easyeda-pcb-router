@@ -1,0 +1,13 @@
+{
+	"web": {
+		"ip": "127.0.0.1",
+		"port": 3579,
+		"idle": 60000
+	},
+	"router": {
+		"min_timeout": 300000,
+		"min_progress_interval": 2000,
+		"keep_heartbeat": 5000,
+		"max_route_retry": 4
+	}
+}

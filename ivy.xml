@@ -1,0 +1,9 @@
+<ivy-module version="2.0">
+    <info organisation="com.easyeda" module="electronic_db"/>
+    <configurations defaultconfmapping="dev->default">
+        <conf name="dev" description="Required to compile code" />
+    </configurations>	
+    <dependencies>   
+        <dependency org="org.eclipse.jetty.websocket" name="websocket-server" rev="9.2.22.v20170606"/>        
+    </dependencies>
+</ivy-module>

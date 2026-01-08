@@ -1,0 +1,368 @@
+(PCB ''
+  (resolution mil 10)
+  (structure
+    (boundary(path signal 0 10000 20900 10000 11000 10026 10778 10100 10566 10218 10376 10376 10218 10566 10100 10778 10026 11000 10000 26400 10000 26400 20900 )
+    )
+    (via  via0
+    )
+    (grid via   25)
+    (grid wire   25)
+    (grid place   25)
+    (rule(clearance 110))
+    (rule(clearance 60 (type smd_smd)))
+    (rule(width 81))
+    (layer 1
+      (type signal)
+    )
+    (layer 2
+      (type signal)
+    )
+
+  )
+
+  (placement
+    (component u1
+      (place u1 0 0 front 0
+      )
+    )
+
+  )
+  (library
+    (image u1
+      (pin p1 1 0 0)
+      (pin p2 2 0 0)
+      (pin p3 3 0 0)
+      (pin p4 4 0 0)
+      (pin p31 31 0 0)
+      (pin p41 41 0 0)
+      (pin p48 48 0 0)
+      (pin p51 51 0 0)
+      (pin p58 58 0 0)
+      (pin p61 61 0 0)
+      (pin p67 67 0 0)
+      (pin p70 70 0 0)
+      (pin p73 73 0 0)
+      (pin p76 76 0 0)
+      (pin p79 79 0 0)
+      (pin p82 82 0 0)
+      (pin p85 85 0 0)
+      (pin p88 88 0 0)
+      (pin p91 91 0 0)
+      (pin p94 94 0 0)
+      (pin p97 97 0 0)
+      (pin p102 102 0 0)
+      (pin p105 105 0 0)
+      (pin p108 108 0 0)
+      (pin p111 111 0 0)
+      (pin p114 114 0 0)
+      (pin p124 124 0 0)
+      (pin p127 127 0 0)
+      (pin p130 130 0 0)
+      (pin p133 133 0 0)
+      (pin p136 136 0 0)
+      (pin p139 139 0 0)
+      (pin p142 142 0 0)
+      (pin p145 145 0 0)
+      (pin p156 156 0 0)
+      (pin p159 159 0 0)
+      (pin p162 162 0 0)
+      (pin p165 165 0 0)
+      (pin p168 168 0 0)
+      (pin p171 171 0 0)
+      (pin p185 185 0 0)
+      (pin p188 188 0 0)
+      (pin p198 198 0 0)
+      (pin p201 201 0 0)
+      (pin p216 216 0 0)
+      (pin p219 219 0 0)
+      (pin p222 222 0 0)
+      (pin p225 225 0 0)
+      (pin p228 228 0 0)
+      (pin p231 231 0 0)
+      (pin p234 234 0 0)
+      (pin p237 237 0 0)
+      (pin p240 240 0 0)
+      (pin p243 243 0 0)
+      (pin p251 251 0 0)
+      (pin p254 254 0 0)
+      (pin p261 261 0 0)
+      (pin p264 264 0 0)
+      (pin p271 271 0 0)
+      (pin p274 274 0 0)
+      (pin p281 281 0 0)
+      (pin p284 284 0 0)
+    )
+
+    (padstack via0
+      (shape(circle 1 260))
+      (shape(circle 2 260))
+    )
+
+    (padstack p1
+      (shape(circle 1 590 13750 11500))
+      (shape(circle 2 590 13750 11500))
+    )
+    (padstack p2
+      (shape(circle 1 590 13750 12500))
+      (shape(circle 2 590 13750 12500))
+    )
+    (padstack p3
+      (shape(circle 1 590 12750 11500))
+      (shape(circle 2 590 12750 11500))
+    )
+    (padstack p4
+      (shape(polygon 1 0 12455 12205 13045 12205 13045 12795 12455 12795))
+      (shape(polygon 2 0 12455 12205 13045 12205 13045 12795 12455 12795))
+    )
+    (padstack p31
+      (shape(polygon 1 0 10605 11105 11195 11105 11195 11695 10605 11695))
+      (shape(polygon 2 0 10605 11105 11195 11105 11195 11695 10605 11695))
+    )
+    (padstack p41
+      (shape(polygon 1 0 10605 12405 11195 12405 11195 12995 10605 12995))
+      (shape(polygon 2 0 10605 12405 11195 12405 11195 12995 10605 12995))
+    )
+    (padstack p48
+      (shape(polygon 1 0 15984 11764 16417 11764 16417 12236 15984 12236))
+    )
+    (padstack p51
+      (shape(polygon 1 0 16653 11764 17086 11764 17086 12236 16653 12236))
+    )
+    (padstack p58
+      (shape(polygon 1 0 23884 12464 24317 12464 24317 12936 23884 12936))
+    )
+    (padstack p61
+      (shape(polygon 1 0 24553 12464 24986 12464 24986 12936 24553 12936))
+    )
+    (padstack p67
+      (shape(polygon 1 0 15760 13945 16460 13945 16460 14155 15760 14155))
+    )
+    (padstack p70
+      (shape(polygon 1 0 15760 14445 16460 14445 16460 14655 15760 14655))
+    )
+    (padstack p73
+      (shape(polygon 1 0 15760 14945 16460 14945 16460 15155 15760 15155))
+    )
+    (padstack p76
+      (shape(polygon 1 0 15760 15445 16460 15445 16460 15655 15760 15655))
+    )
+    (padstack p79
+      (shape(polygon 1 0 15760 15945 16460 15945 16460 16155 15760 16155))
+    )
+    (padstack p82
+      (shape(polygon 1 0 15760 16445 16460 16445 16460 16655 15760 16655))
+    )
+    (padstack p85
+      (shape(polygon 1 0 15760 16945 16460 16945 16460 17155 15760 17155))
+    )
+    (padstack p88
+      (shape(polygon 1 0 15760 17445 16460 17445 16460 17655 15760 17655))
+    )
+    (padstack p91
+      (shape(polygon 1 0 19540 17445 20240 17445 20240 17655 19540 17655))
+    )
+    (padstack p94
+      (shape(polygon 1 0 19540 16945 20240 16945 20240 17155 19540 17155))
+    )
+    (padstack p97
+      (shape(polygon 1 0 19540 16445 20240 16445 20240 16655 19540 16655))
+    )
+    (padstack p102
+      (shape(polygon 1 0 19540 15945 20240 15945 20240 16155 19540 16155))
+    )
+    (padstack p105
+      (shape(polygon 1 0 19540 15445 20240 15445 20240 15655 19540 15655))
+    )
+    (padstack p108
+      (shape(polygon 1 0 19540 14945 20240 14945 20240 15155 19540 15155))
+    )
+    (padstack p111
+      (shape(polygon 1 0 19540 14445 20240 14445 20240 14655 19540 14655))
+    )
+    (padstack p114
+      (shape(polygon 1 0 19540 13945 20240 13945 20240 14155 19540 14155))
+    )
+    (padstack p124
+      (shape(polygon 1 0 20325 18990 21035 18990 21035 19150 20325 19150))
+    )
+    (padstack p127
+      (shape(polygon 1 0 20325 19250 21035 19250 21035 19410 20325 19410))
+    )
+    (padstack p130
+      (shape(polygon 1 0 20325 19500 21035 19500 21035 19660 20325 19660))
+    )
+    (padstack p133
+      (shape(polygon 1 0 20325 19760 21035 19760 21035 19920 20325 19920))
+    )
+    (padstack p136
+      (shape(polygon 1 0 22605 19760 23315 19760 23315 19920 22605 19920))
+    )
+    (padstack p139
+      (shape(polygon 1 0 22605 19500 23315 19500 23315 19660 22605 19660))
+    )
+    (padstack p142
+      (shape(polygon 1 0 22605 19250 23315 19250 23315 19410 22605 19410))
+    )
+    (padstack p145
+      (shape(polygon 1 0 22605 18990 23315 18990 23315 19150 22605 19150))
+    )
+    (padstack p156
+      (shape(circle 1 590 14200 14200))
+      (shape(circle 2 590 14200 14200))
+    )
+    (padstack p159
+      (shape(circle 1 590 13200 14200))
+      (shape(circle 2 590 13200 14200))
+    )
+    (padstack p162
+      (shape(circle 1 590 12200 14200))
+      (shape(circle 2 590 12200 14200))
+    )
+    (padstack p165
+      (shape(circle 1 590 14200 15200))
+      (shape(circle 2 590 14200 15200))
+    )
+    (padstack p168
+      (shape(circle 1 590 13200 15200))
+      (shape(circle 2 590 13200 15200))
+    )
+    (padstack p171
+      (shape(polygon 1 0 11905 14905 12495 14905 12495 15495 11905 15495))
+      (shape(polygon 2 0 11905 14905 12495 14905 12495 15495 11905 15495))
+    )
+    (padstack p185
+      (shape(circle 1 590 24600 18700))
+      (shape(circle 2 590 24600 18700))
+    )
+    (padstack p188
+      (shape(polygon 1 0 24895 17405 24895 17995 24305 17995 24305 17405))
+      (shape(polygon 2 0 24895 17405 24895 17995 24305 17995 24305 17405))
+    )
+    (padstack p198
+      (shape(circle 1 800 13900 17484))
+      (shape(circle 2 800 13900 17484))
+    )
+    (padstack p201
+      (shape(circle 1 800 13900 19516))
+      (shape(circle 2 800 13900 19516))
+    )
+    (padstack p216
+      (shape(polygon 1 0 22233 14462 22233 14738 21367 14738 21367 14462))
+    )
+    (padstack p219
+      (shape(polygon 1 0 22233 14962 22233 15238 21367 15238 21367 14962))
+    )
+    (padstack p222
+      (shape(polygon 1 0 22233 15462 22233 15738 21367 15738 21367 15462))
+    )
+    (padstack p225
+      (shape(polygon 1 0 22233 15962 22233 16238 21367 16238 21367 15962))
+    )
+    (padstack p228
+      (shape(polygon 1 0 22233 16462 22233 16738 21367 16738 21367 16462))
+    )
+    (padstack p231
+      (shape(polygon 1 0 24359 16462 24359 16738 23493 16738 23493 16462))
+    )
+    (padstack p234
+      (shape(polygon 1 0 24359 15962 24359 16238 23493 16238 23493 15962))
+    )
+    (padstack p237
+      (shape(polygon 1 0 24359 15462 24359 15738 23493 15738 23493 15462))
+    )
+    (padstack p240
+      (shape(polygon 1 0 24359 14962 24359 15238 23493 15238 23493 14962))
+    )
+    (padstack p243
+      (shape(polygon 1 0 24359 14462 24359 14738 23493 14738 23493 14462))
+    )
+    (padstack p251
+      (shape(polygon 1 0 24184 19964 24617 19964 24617 20436 24184 20436))
+    )
+    (padstack p254
+      (shape(polygon 1 0 24853 19964 25286 19964 25286 20436 24853 20436))
+    )
+    (padstack p261
+      (shape(polygon 1 0 11184 18264 11617 18264 11617 18736 11184 18736))
+    )
+    (padstack p264
+      (shape(polygon 1 0 11853 18264 12286 18264 12286 18736 11853 18736))
+    )
+    (padstack p271
+      (shape(polygon 1 0 11184 19464 11617 19464 11617 19936 11184 19936))
+    )
+    (padstack p274
+      (shape(polygon 1 0 11853 19464 12286 19464 12286 19936 11853 19936))
+    )
+    (padstack p281
+      (shape(polygon 1 0 17784 11764 18217 11764 18217 12236 17784 12236))
+    )
+    (padstack p284
+      (shape(polygon 1 0 18453 11764 18886 11764 18886 12236 18453 12236))
+    )
+  )
+  (network
+    (net U4_8
+      (pins u1-1 u1-41 u1-51 u1-237)
+    )
+    (net U1_10
+      (pins u1-2 u1-94)
+    )
+    (net U4_9
+      (pins u1-3 u1-31 u1-58 u1-240)
+    )
+    (net U1_11
+      (pins u1-4 u1-97)
+    )
+    (net GND
+      (pins u1-48 u1-61 u1-88 u1-133 u1-159 u1-162 u1-228 u1-234 u1-251 u1-261 u1-271)
+    )
+    (net U1_1
+      (pins u1-67 u1-284)
+    )
+    (net U1_2
+      (pins u1-70 u1-281)
+    )
+    (net U3_5
+      (pins u1-76 u1-165)
+    )
+    (net U1_5
+      (pins u1-79 u1-156)
+    )
+    (net Q1_1
+      (pins u1-82 u1-198 u1-264)
+    )
+    (net Q1_2
+      (pins u1-85 u1-201 u1-274)
+    )
+    (net SIGNAL
+      (pins u1-91 u1-130)
+    )
+    (net P3
+      (pins u1-102 u1-219)
+    )
+    (net P2
+      (pins u1-105 u1-222)
+    )
+    (net P1
+      (pins u1-108 u1-216)
+    )
+    (net VCC
+      (pins u1-111 u1-114 u1-127 u1-171 u1-225)
+    )
+    (net C3_2
+      (pins u1-139 u1-185 u1-254)
+    )
+    (net U2_7
+      (pins u1-142 u1-188)
+    )
+    (net VDD
+      (pins u1-168 u1-231)
+    )
+
+  )
+
+   (wiring
+    )
+
+)
