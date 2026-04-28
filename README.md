@@ -1,5 +1,7 @@
 # EasyEDA PCB Router
 
+[中文文档 (Chinese)](./README_CN.md)
+
 A local PCB auto-routing WebSocket server for [EasyEDA](https://easyeda.com), based on the open-source [Freerouting](https://github.com/freerouting/freerouting) engine. The original Freerouting GUI has been removed and replaced with a headless WebSocket service that the EasyEDA web editor connects to for automated trace routing.
 
 ## Features

@@ -1,5 +1,7 @@
 # EasyEDA PCB Router（嘉立创EDA PCB 自动布线器）
 
+[English Documentation](./README.md)
+
 基于开源 [Freerouting](https://github.com/freerouting/freerouting) 引擎的本地 PCB 自动布线 WebSocket 服务，供 [嘉立创EDA](https://easyeda.com)（EasyEDA）Web 编辑器调用。去除了 Freerouting 原有 GUI，封装为无头 WebSocket 服务。
 
 ## 功能特性
