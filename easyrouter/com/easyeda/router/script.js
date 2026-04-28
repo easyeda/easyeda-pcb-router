@@ -1,12 +1,30 @@
 /**
- * 自动布线接口程序
+ * EasyEDA PCB 自动布线客户端 API
+ *
+ * 提供浏览器端 WebSocket 客户端，用于连接 EasyEDA 本地/云端自动布线服务器。
+ * 通过 WebSocket 发送 DSN 设计数据，接收布线结果和中间进度。
+ *
+ * EasyEDA PCB Auto-Router Client API.
+ * Browser-side WebSocket client for connecting to the EasyEDA local/cloud
+ * auto-routing server. Sends DSN design data and receives routing results
+ * and intermediate progress updates.
+ *
+ * @example
+ * var router = new easyeda.AutoRouter("wss://router.easyeda.com:8443/router");
+ * router.onResult = function(resultCode, netArr, inCompleteNetNum) { ... };
+ * router.onProgress = function(netArr, inCompleteNetNum) { ... };
+ * router.onError = function() { ... };
+ * var dsnData = api('exportDSN', {'width': '8.1mil', 'clearance': '11mil'});
+ * router.requestRoute(dsnData, 30, 10, 5);
  */
 
 //外部变量名可根据实际需要修改, 闭包内的代码及命名无须做任何改动.
 easyeda.AutoRouter=(function(){
     /**
      * 自动布线器构造函数.
-     * @param serverURL 服务程序的地址,如 wss://xxx.xx.xx.xx:xxx/router
+     *
+     * @param {string} serverURL WebSocket 服务地址, 如 "wss://router.easyeda.com:8443/router"
+     *                           或本地 "ws://127.0.0.1:3579/router"
      * @constructor
      */
     function AutoRouter(serverURL){
@@ -15,29 +33,39 @@ easyeda.AutoRouter=(function(){
         this._manualClose=false;
         this._ws=null;
         /**
-         * 当出现错误时调用
-         * @type {Function} 无参数
+         * 错误回调，连接异常或非主动关闭时触发。
+         * Error callback, triggered on connection error or unexpected close.
+         * @type {Function|null} 无参数 / No parameters
          */
         this.onError=null;
 
         /**
-         * 布线中间结果返回,可将中间布线结果显示出来.
-         * @type {Function} 参数为netArr,inCompleteNetNum, 其中netArr可能为null(只发inCompleteNetNum的情况)
+         * 布线中间进度回调，服务器定时推送当前布线快照。
+         * Progress callback, server pushes intermediate routing snapshots periodically.
+         * @type {Function|null}
+         * @param {Array|null} netArr  布线网络数组（可能为 null，仅推送计数）/ Net array (may be null)
+         * @param {number} inCompleteNetNum 未完成连接数 / Incomplete net count
          */
         this.onProgress=null;
         /**
-         * 布线结果回调
-         * @type {Function} 参数为 resultCode,netArr,inCompleteNetNum
-         *      其中, resultCode为结果码,对应下方的常量定义,  netArr是将session文件转换后的netArr数组.
+         * 布线最终结果回调。
+         * Final routing result callback.
+         * @type {Function|null}
+         * @param {number} resultCode 结果码 / Result code (see RESULT_CODE_* constants)
+         * @param {Array}  netArr     布线网络数组 / Routed net array for importSession
+         * @param {number} inCompleteNetNum 未完成连接数 / Incomplete net count
          */
         this.onResult=null;
     }
     /**
-     * 请求布线,回调设置后调用
-     * @param dsnData Autorouter可识别的dsn文件数据
-     * @param timeout 期望最大布线时间,以秒为单位.
-     * @param progressInterval 期望返回中间结果的间隔,以秒为单位,必须为整数, 0表示不返回中间结果.
-     * @param optimizeTime 优化时间,以秒为单位
+     * 发起布线请求。调用前需先设置 onResult/onProgress/onError 回调。
+     * Start a routing request. Set onResult/onProgress/onError callbacks before calling.
+     *
+     * @param {string} dsnData           Specctra DSN 格式的设计数据 / DSN file content string
+     * @param {number} timeout           最大布线时间（秒）/ Max routing time in seconds
+     * @param {number} progressInterval  中间结果推送间隔（秒），0 表示不推送 / Progress interval in seconds, 0 to disable
+     * @param {number} optimizeTime      布线后优化时间（秒）/ Post-route optimization time in seconds
+     * @throws {string} 如果上一个连接未关闭 / If previous connection is still open
      */
     AutoRouter.prototype.requestRoute=function(dsnData,timeout,progressInterval,optimizeTime){
         if(this._ws!=null){

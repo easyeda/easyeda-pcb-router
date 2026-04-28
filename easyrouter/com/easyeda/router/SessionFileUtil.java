@@ -5,9 +5,43 @@ import com.easyeda.utils.json.JMap;
 import com.easyeda.utils.json.JObject;
 
 /**
- * Created by hover on 15/9/1.
+ * Specctra Session (SES) 文件到 EasyEDA JSON 格式的转换工具。
+ * <p>
+ * Freerouting 引擎输出标准的 Specctra Session 文本，本工具将其解析为 EasyEDA 编辑器
+ * 可直接导入的 JSON 结构。转换过程中坐标除以 1000 以适配 EasyEDA 的单位体系。
+ * <p>
+ * Converts Specctra Session (SES) file text output from the Freerouting engine
+ * into EasyEDA's JSON format. Coordinates are divided by 1000 to match EasyEDA's unit system.
+ *
+ * <h3>输出 JSON 结构 / Output JSON Structure</h3>
+ * <pre>{@code
+ * {
+ *   "1": {
+ *     "net": "NetName",
+ *     "wires": [
+ *       { "layerid": 1, "width": 0.254, "points": [x1, y1, x2, y2, ...] }
+ *     ],
+ *     "vias": [
+ *       { "x": 10.5, "y": 20.3 }
+ *     ]
+ *   },
+ *   "2": { ... }
+ * }
+ * }</pre>
+ *
+ * @see RouterExecutor
  */
 public class SessionFileUtil {
+
+	/**
+	 * 将 Specctra Session 文件文本转换为 EasyEDA JSON 格式。
+	 * <p>
+	 * 解析 SES 文本中的 {@code (net ...)} 块，提取每个网络的走线路径 {@code (path ...)}
+	 * 和过孔 {@code (via ...)}，转换坐标单位后组装为 JSON 对象。
+	 *
+	 * @param fileData Specctra Session 文件的完整文本内容，为 null 时返回空 JMap
+	 * @return 包含所有网络布线数据的 JSON 对象，key 为网络序号（从 "1" 开始）
+	 */
 	public static JObject sessionFileToEasyEDA(String fileData) {
 		JMap netArr = new JMap();
 		if (fileData == null)
@@ -78,6 +112,12 @@ public class SessionFileUtil {
 		return 0;
 	}
 
+	/**
+	 * 将 Freerouting 内部坐标转换为 EasyEDA 坐标（除以 1000）。
+	 *
+	 * @param s Freerouting 坐标值
+	 * @return EasyEDA 坐标值
+	 */
 	private static double toEasyEDASize(double s) {
 		return s / 1000;
 	}

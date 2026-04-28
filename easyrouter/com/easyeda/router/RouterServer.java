@@ -13,8 +13,36 @@ import org.eclipse.jetty.servlet.ServletHandler;
 import com.easyeda.utils.Config;
 import com.easyeda.utils.json.JObject;
 
+/**
+ * EasyEDA PCB 自动布线 WebSocket 服务器入口。
+ * <p>
+ * 基于 Jetty 启动 HTTP/WebSocket 服务，提供两个端点：
+ * <ul>
+ *   <li>{@code /api/whois} — HTTP GET 健康检查，返回 "EasyEDA Auto Router"</li>
+ *   <li>{@code /router}   — WebSocket 端点，接收 DSN 数据并执行自动布线</li>
+ * </ul>
+ * 服务器配置从 {@code config/<env>/main.json} 的 {@code web} 节点读取（IP、端口、空闲超时）。
+ * <p>
+ * Main entry point for the EasyEDA PCB auto-routing WebSocket server.
+ * Starts a Jetty HTTP/WebSocket server with two endpoints:
+ * health-check ({@code /api/whois}) and routing ({@code /router}).
+ * Configuration is loaded from {@code config/<env>/main.json}.
+ *
+ * @see WSService
+ * @see WSHandler
+ * @see WhoIs
+ */
 public class RouterServer {
 
+	/**
+	 * 启动自动布线服务器。
+	 * <p>
+	 * 从配置文件读取 IP/端口/空闲超时，注册 Servlet 端点并启动 Jetty 服务。
+	 * 如果端口已被占用，输出提示信息并等待用户按键退出。
+	 *
+	 * @param args 命令行参数（未使用）
+	 * @throws IOException 如果等待用户输入时发生 I/O 错误
+	 */
 	public static void main(String[] args) throws IOException {
 		try {
 			JObject web = Config.get("main.json").get("web");
