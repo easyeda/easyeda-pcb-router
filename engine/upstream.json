@@ -1,0 +1,11 @@
+{
+  "version": "2.5.0",
+  "tag": "v2.5.0",
+  "commit": "b647a2f824cfbc54bc4dcaee71b03b7cd945eb76",
+  "java": 25,
+  "artifact": "freerouting-2.5.0.jar",
+  "url": "https://github.com/freerouting/freerouting/releases/download/v2.5.0/freerouting-2.5.0.jar",
+  "sha256": "f6f51bb02245e8e717f9359bd260cc9c5c0b1bc0acc8b7cb2cd5b8ffeb5de3c7",
+  "source": "https://github.com/freerouting/freerouting/tree/b647a2f824cfbc54bc4dcaee71b03b7cd945eb76",
+  "license": "GPL-3.0-or-later"
+}

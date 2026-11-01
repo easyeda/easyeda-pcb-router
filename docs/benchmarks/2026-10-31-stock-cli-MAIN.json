@@ -1,0 +1,18 @@
+{
+  "engine": "Freerouting 2.5.0 stock CLI",
+  "cpuBudget": 1,
+  "heapMb": 512,
+  "timeoutSeconds": 20,
+  "fanoutEnabled": true,
+  "finalState": "TIMED_OUT",
+  "incomplete": 59,
+  "clearanceViolations": 0,
+  "resourceUsage": {
+    "cpu_time": 19.59,
+    "max_memory": 27622.66,
+    "peak_memory": 151.43,
+    "io_read": 0.0,
+    "io_written": 0.0
+  },
+  "note": "Diagnostic run before mapping fanout to the historical EasyEDA setting."
+}

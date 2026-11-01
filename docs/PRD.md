@@ -1,5 +1,14 @@
 # EasyEDA PCB Router — 产品需求文档 (PRD)
 
+> 迁移实现状态（2026-10-31）：服务层保持 Java 8 兼容，现代 Freerouting 2.5.0
+> 在独立 Java 25 进程运行，现代引擎现为默认；设置
+> `EASYEDA_ROUTER_ENGINE=legacy` 可临时回退旧引擎。
+> 当前协议：`1` 无未完成连接，`0` 部分结果，`-1` 队列满，`-2` 请求/DSN 无效，
+> `-3` 引擎/转换失败；`progressInterval=0` 禁用进度，`optimizeTime` 是最大优化次数。
+> 默认并发任务 1、等待队列 4；现代优化器线程数 2，堆内存上限 1024 MB。
+> 完整源码构建需 JDK 25；以下历史需求以
+> [当前开发文档](development.md) 和 [迁移验证](migration-validation.md) 为准。
+
 ## 1. 项目概述
 
 EasyEDA PCB Router 是嘉立创EDA（EasyEDA）的本地 PCB 自动布线服务。基于开源 Freerouting 引擎，去除原有 GUI，封装为 WebSocket 服务，供 EasyEDA Web 编辑器调用，实现 PCB 设计的自动走线。

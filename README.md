@@ -33,10 +33,33 @@ EasyEDA Web Editor  ◄──WebSocket JSON──►  EasyEDA PCB Router
 
 ## Requirements
 
-- Java 8 (JRE 1.8) 64-bit
-- Apache Ant (for building from source)
+- Java 25 JDK and Apache Ant for a full source build (including the modern worker).
+- The WebSocket facade targets Java 8. Modern routing runs in a separate Java 25+ JVM.
+- The pinned upstream JAR is fetched and SHA-256 verified during the first build (about 65 MB).
 
 ## Quick Start
+
+### Modern Engine
+
+Modern Freerouting 2.5.0 is the default engine. The historical engine remains
+available as an explicit rollback with `EASYEDA_ROUTER_ENGINE=legacy`. See
+[migration validation](docs/migration-validation.md).
+
+```sh
+ant -Dbuild=.build/modern-client build-client
+cd ".build/modern-client/EasyEDA Router v0.8.11"
+sh mac64.sh  # Linux: sh lin64.sh
+```
+
+On Windows, run `win64.bat`; set `EASYEDA_ROUTER_ENGINE=legacy` only to roll
+back to the historical engine.
+Set `FREEROUTING_JAVA_HOME` to a Java 25+ installation if the facade runs on
+an older Java runtime. Startup validates the runtime and artifact checksum;
+it never silently falls back to the legacy engine.
+
+Automatic track neckdown is disabled in the modern worker: the observed
+EasyEDA round trip restores narrower tracks to their net-class width, which
+can consume clearance. Routing retains the requested widths.
 
 ### Pre-built Release
 
@@ -56,14 +79,20 @@ ant build-client
 
 The output is in `.build/EasyEDA Router v0.8.11/`.
 
+For the fork workflow and migration regression checks, see [Development](docs/development.md).
+
 #### Build Targets
 
 | Target | Description |
 |--------|-------------|
 | `ant clean` | Clean build artifacts |
-| `ant build-freerouter` | Build the Freerouting engine JAR |
+| `ant build-freerouter` | Build the historical engine JAR for rollback |
+| `ant fetch-engine` | Fetch and verify the pinned modern engine |
+| `ant build-worker` | Build the isolated Java 25 worker |
 | `ant build-web` | Build the WebSocket server (for server deployment) |
 | `ant build-client` | Build the full client distribution package |
+| `ant -Dbuild=.build/migration-check test` | Build and run routing regression checks in an isolated directory |
+| `ant -Dbuild=.build/integration test-integration` | Route the sample corpus with both engines and test worker failures/cancellation |
 
 ## Configuration
 
@@ -80,7 +109,13 @@ Configuration file: `config/local/main.json`
     "min_timeout": 300000,
     "min_progress_interval": 2000,
     "keep_heartbeat": 5000,
-    "max_route_retry": 4
+    "max_route_retry": 4,
+    "engine": "modern",
+    "max_active_jobs": 1,
+    "max_queued_jobs": 4,
+    "worker_threads": 2,
+    "worker_heap_mb": 1024,
+    "worker_stop_grace_ms": 5000
   }
 }
 ```
@@ -91,9 +126,15 @@ Configuration file: `config/local/main.json`
 | `web.port` | int | `3579` | Listen port |
 | `web.idle` | int | `60000` | HTTP idle timeout (ms) |
 | `router.min_timeout` | int | `300000` | Minimum routing timeout (ms) |
-| `router.min_progress_interval` | int | `2000` | Minimum progress push interval (ms) |
+| `router.min_progress_interval` | int | `2000` | Minimum nonzero progress push interval (ms) |
 | `router.keep_heartbeat` | int | `5000` | Heartbeat interval (ms) |
-| `router.max_route_retry` | int | `4` | Max routing retry count |
+| `router.max_route_retry` | int | `4` | Legacy-engine retry count |
+| `router.engine` | string | `modern` | `modern` or `legacy`; JVM property `com.easyeda.router.engine`, then `EASYEDA_ROUTER_ENGINE`, override this value |
+| `router.max_active_jobs` | int | `1` | Maximum simultaneous routing jobs |
+| `router.max_queued_jobs` | int | `4` | Bounded waiting-job capacity |
+| `router.worker_threads` | int | `2` | Optimizer threads per modern worker; autorouting uses one thread |
+| `router.worker_heap_mb` | int | `1024` | Maximum heap per worker (MB) |
+| `router.worker_stop_grace_ms` | int | `5000` | Grace period before forcibly stopping an unresponsive worker |
 
 The environment is set via JVM property `-Dcom.easyeda.env=local` (defaults to `prod`).
 
@@ -131,7 +172,7 @@ GET http://127.0.0.1:3579/api/whois
 | `a` | string | yes | Fixed: `"startRoute"` |
 | `data` | string | yes | Specctra DSN format PCB design data |
 | `timeout` | int | yes | Max routing time in seconds |
-| `progressInterval` | int | no | Progress push interval in seconds (default: 2) |
+| `progressInterval` | int | no | Progress push interval in seconds (default: 2); 0 disables progress messages |
 | `optimizeTime` | int | no | Post-route optimization passes (default: 3) |
 
 #### Heartbeat
@@ -178,9 +219,10 @@ GET http://127.0.0.1:3579/api/whois
 | `complete` | Meaning |
 |------------|---------|
 | `1` | Routing completed successfully |
-| `0` | Timed out before completion |
+| `0` | Partial result with remaining connections, including timeout |
 | `-1` | Server busy (thread pool full) |
-| `-2` | Failed to open DSN file |
+| `-2` | Invalid request or failed DSN import |
+| `-3` | Engine execution or SES conversion failed |
 
 ### Result Data Format
 
@@ -202,7 +244,10 @@ GET http://127.0.0.1:3579/api/whois
 }
 ```
 
-Coordinates: Freerouting internal units ÷ 1000 = EasyEDA units.
+Coordinates retain the historical EasyEDA SES ÷ 1000 convention when input and
+output resolutions match. Output unit/resolution changes are normalized against
+the original DSN. Quoted names, decimal/signed coordinates, and numeric or standard
+named copper layers are supported; unsupported geometry fails explicitly.
 
 ## JavaScript Client API
 
@@ -214,7 +259,8 @@ var router = new easyeda.AutoRouter("ws://127.0.0.1:3579/router");
 
 // Set callbacks
 router.onResult = function(resultCode, netArr, inCompleteNetNum) {
-    if (resultCode == easyeda.AutoRouter.RESULT_CODE_COMPLETE) {
+    if (resultCode == easyeda.AutoRouter.RESULT_CODE_COMPLETE ||
+        resultCode == easyeda.AutoRouter.RESULT_CODE_NOT_COMPLETE) {
         api('ripupAllNet');
         api('importSession', JSON.stringify(netArr));
     } else if (resultCode == easyeda.AutoRouter.RESULT_CODE_SERVER_BUSY) {
@@ -260,7 +306,7 @@ Start a routing request. Set callbacks before calling this method.
 | `dsnData` | string | Specctra DSN file content |
 | `timeout` | number | Max routing time (seconds) |
 | `progressInterval` | number | Progress interval (seconds), 0 to disable |
-| `optimizeTime` | number | Optimization passes (seconds) |
+| `optimizeTime` | number | Maximum optimization passes (default: 3; the optimizer may stop earlier) |
 
 #### `router.close()`
 
@@ -279,9 +325,10 @@ Close the WebSocket connection and cancel the current routing task.
 | Constant | Value | Description |
 |----------|-------|-------------|
 | `RESULT_CODE_COMPLETE` | `1` | Routing fully completed |
-| `RESULT_CODE_NOT_COMPLETE` | `0` | Timed out, incomplete |
+| `RESULT_CODE_NOT_COMPLETE` | `0` | Partial result / timeout |
 | `RESULT_CODE_SERVER_BUSY` | `-1` | Server busy |
-| `RESULT_CODE_ERROR_OPEN_FILE` | `-2` | DSN file open error |
+| `RESULT_CODE_ERROR_OPEN_FILE` | `-2` | Invalid request / DSN import error |
+| `RESULT_CODE_ERROR_ROUTING` | `-3` | Engine / SES conversion failure |
 
 ## Troubleshooting
 

@@ -33,10 +33,29 @@ EasyEDA Web 编辑器  ◄──WebSocket JSON──►  EasyEDA PCB Router
 
 ## 环境要求
 
-- Java 8 (JRE 1.8) 64 位
-- Apache Ant（从源码构建时需要）
+- 完整源码构建需要 Java 25 JDK 和 Apache Ant。
+- WebSocket 服务保持 Java 8 兼容；现代引擎在独立 Java 25+ 进程中运行。
+- 首次构建下载约 65 MB 的固定版本 JAR，并校验 SHA-256。
 
 ## 快速开始
+
+### 现代引擎预览
+
+Freerouting 2.5.0 已支持显式启用。浏览器/DRC 验收和样本回归尚待确认，
+默认仍使用旧引擎。详见 [迁移验证（英文）](docs/migration-validation.md)。
+
+```sh
+ant -Dbuild=.build/modern-client build-client
+cd ".build/modern-client/EasyEDA Router v0.8.11"
+EASYEDA_ROUTER_ENGINE=modern sh mac64.sh  # Linux: sh lin64.sh
+```
+
+Windows 用户先设置 `EASYEDA_ROUTER_ENGINE=modern`，再运行 `win64.bat`。
+若服务本身运行在旧版 Java 上，请通过 `FREEROUTING_JAVA_HOME` 指定 Java 25+。
+启动时校验运行时及 JAR 摘要；现代引擎失败时不会自动回退到旧引擎。
+
+现代工作进程禁用自动缩窄走线。已观察到 EasyEDA 往返导入/导出会把较窄走线
+恢复为网络规则线宽，可能减少实际间距；因此引擎按请求的线宽预留间距。
 
 ### 使用预编译版本
 
@@ -56,14 +75,20 @@ ant build-client
 
 构建产物位于 `.build/EasyEDA Router v0.8.11/` 目录。
 
+Fork 开发流程及迁移回归检查请参阅 [开发文档（英文）](docs/development.md)。
+
 #### 构建目标
 
 | 目标 | 说明 |
 |------|------|
 | `ant clean` | 清理构建产物 |
-| `ant build-freerouter` | 构建 Freerouting 引擎 JAR |
+| `ant build-freerouter` | 构建旧引擎 JAR（用于回退） |
+| `ant fetch-engine` | 下载并校验现代引擎 |
+| `ant build-worker` | 构建独立 Java 25 工作进程 |
 | `ant build-web` | 构建 WebSocket 服务（用于服务端部署） |
 | `ant build-client` | 构建完整客户端分发包 |
+| `ant -Dbuild=.build/migration-check test` | 在独立目录构建并运行布线回归检查 |
+| `ant -Dbuild=.build/integration test-integration` | 双引擎样本布线及工作进程生命周期检查 |
 
 ## 配置说明
 
@@ -80,7 +105,13 @@ ant build-client
     "min_timeout": 300000,
     "min_progress_interval": 2000,
     "keep_heartbeat": 5000,
-    "max_route_retry": 4
+    "max_route_retry": 4,
+		"engine": "modern",
+    "max_active_jobs": 1,
+    "max_queued_jobs": 4,
+    "worker_threads": 2,
+    "worker_heap_mb": 1024,
+    "worker_stop_grace_ms": 5000
   }
 }
 ```
@@ -93,7 +124,13 @@ ant build-client
 | `router.min_timeout` | int | `300000` | 最小布线超时（毫秒） |
 | `router.min_progress_interval` | int | `2000` | 最小进度推送间隔（毫秒） |
 | `router.keep_heartbeat` | int | `5000` | 心跳发送间隔（毫秒） |
-| `router.max_route_retry` | int | `4` | 最大布线重试次数 |
+| `router.max_route_retry` | int | `4` | 旧引擎最大重试次数 |
+| `router.engine` | string | `modern` | 引擎选择（默认现代引擎）；JVM 属性 `com.easyeda.router.engine`、环境变量 `EASYEDA_ROUTER_ENGINE` 依次优先于此项。设置为 `legacy` 可回退到历史引擎 |
+| `router.max_active_jobs` | int | `1` | 最大并发任务数 |
+| `router.max_queued_jobs` | int | `4` | 等待队列容量 |
+| `router.worker_threads` | int | `2` | 现代优化器线程数；自动布线使用单线程 |
+| `router.worker_heap_mb` | int | `1024` | 每个工作进程最大堆内存（MB） |
+| `router.worker_stop_grace_ms` | int | `5000` | 强制终止前的宽限期（毫秒） |
 
 运行环境通过 JVM 属性 `-Dcom.easyeda.env=local` 指定（默认为 `prod`）。
 
@@ -178,9 +215,10 @@ GET http://127.0.0.1:3579/api/whois
 | `complete` 值 | 含义 |
 |---------------|------|
 | `1` | 布线完成 |
-| `0` | 超时未完成 |
+| `0` | 部分结果，仍有未完成连接（含超时） |
 | `-1` | 服务器忙（线程池满） |
-| `-2` | 无法打开 DSN 文件 |
+| `-2` | 请求无效或 DSN 导入失败 |
+| `-3` | 引擎执行或 SES 转换失败 |
 
 ### 布线结果数据格式
 
@@ -202,7 +240,8 @@ GET http://127.0.0.1:3579/api/whois
 }
 ```
 
-坐标换算：Freerouting 内部坐标 ÷ 1000 = EasyEDA 坐标。
+输入输出分辨率相同时保留历史 SES 坐标 ÷ 1000 约定；单位或分辨率变化时，
+以原始 DSN 为基准归一化。支持带引号的网络名、小数及负坐标；不支持的几何格式会明确报错。
 
 ## JavaScript 客户端 API
 
@@ -214,7 +253,8 @@ var router = new easyeda.AutoRouter("ws://127.0.0.1:3579/router");
 
 // 设置回调
 router.onResult = function(resultCode, netArr, inCompleteNetNum) {
-    if (resultCode == easyeda.AutoRouter.RESULT_CODE_COMPLETE) {
+    if (resultCode == easyeda.AutoRouter.RESULT_CODE_COMPLETE ||
+        resultCode == easyeda.AutoRouter.RESULT_CODE_NOT_COMPLETE) {
         api('ripupAllNet');
         api('importSession', JSON.stringify(netArr));
     } else if (resultCode == easyeda.AutoRouter.RESULT_CODE_SERVER_BUSY) {
@@ -260,7 +300,7 @@ router.requestRoute(dsnData, 30, 10, 5);
 | `dsnData` | string | Specctra DSN 文件内容 |
 | `timeout` | number | 最大布线时间（秒） |
 | `progressInterval` | number | 进度推送间隔（秒），0 表示不推送 |
-| `optimizeTime` | number | 优化次数（秒） |
+| `optimizeTime` | number | 最大优化次数（默认 3，可提前收敛） |
 
 #### `router.close()`
 
@@ -279,9 +319,10 @@ router.requestRoute(dsnData, 30, 10, 5);
 | 常量 | 值 | 含义 |
 |------|----|------|
 | `RESULT_CODE_COMPLETE` | `1` | 布线全部完成 |
-| `RESULT_CODE_NOT_COMPLETE` | `0` | 超时未完成 |
+| `RESULT_CODE_NOT_COMPLETE` | `0` | 部分结果，仍有未完成连接（含超时） |
 | `RESULT_CODE_SERVER_BUSY` | `-1` | 服务器忙 |
-| `RESULT_CODE_ERROR_OPEN_FILE` | `-2` | 文件打开失败 |
+| `RESULT_CODE_ERROR_OPEN_FILE` | `-2` | 请求或 DSN 导入失败 |
+| `RESULT_CODE_ERROR_ROUTING` | `-3` | 引擎或 SES 转换失败 |
 
 ## 常见问题
 

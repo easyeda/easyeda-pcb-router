@@ -10,6 +10,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHandler;
 
+import com.easyeda.router.engine.EngineFactory;
 import com.easyeda.utils.Config;
 import com.easyeda.utils.json.JObject;
 
@@ -38,14 +39,14 @@ public class RouterServer {
 	 * 启动自动布线服务器。
 	 * <p>
 	 * 从配置文件读取 IP/端口/空闲超时，注册 Servlet 端点并启动 Jetty 服务。
-	 * 如果端口已被占用，输出提示信息并等待用户按键退出。
+	 * 如果端口已被占用或运行时校验失败，输出提示信息并以失败状态退出。
 	 *
 	 * @param args 命令行参数（未使用）
-	 * @throws IOException 如果等待用户输入时发生 I/O 错误
 	 */
 	public static void main(String[] args) throws IOException {
 		try {
 			JObject web = Config.get("main.json").get("web");
+			EngineFactory.validate(Config.get("main.json").get("router"));
 
 			Server server = new Server();
 
@@ -75,9 +76,6 @@ public class RouterServer {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 		}
-		System.out.print("press any key to close...");
-		System.out.print("按任意键退出...");
-		System.in.read();
 		System.exit(1);
 	}
 

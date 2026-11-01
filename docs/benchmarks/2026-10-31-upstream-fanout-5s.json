@@ -1,0 +1,90 @@
+[
+  {
+    "board": "test",
+    "engine": "legacy",
+    "elapsedMs": 2144,
+    "finishedBeforeDeadline": true,
+    "incomplete": 2,
+    "reportedClearanceViolations": 0,
+    "progressSnapshotsChecked": 0,
+    "vias": 4,
+    "wireLengthEditorUnits": 1597.8052382002265
+  },
+  {
+    "board": "test",
+    "engine": "modern",
+    "elapsedMs": 3623,
+    "finishedBeforeDeadline": true,
+    "incomplete": 0,
+    "reportedClearanceViolations": 0,
+    "progressSnapshotsChecked": 6,
+    "vias": 22,
+    "wireLengthEditorUnits": 1705.299402059953
+  },
+  {
+    "board": "test1",
+    "engine": "legacy",
+    "elapsedMs": 1252,
+    "finishedBeforeDeadline": true,
+    "incomplete": 2,
+    "reportedClearanceViolations": 4,
+    "progressSnapshotsChecked": 0,
+    "vias": 10,
+    "wireLengthEditorUnits": 3820.9866767473627
+  },
+  {
+    "board": "test1",
+    "engine": "modern",
+    "elapsedMs": 5075,
+    "finishedBeforeDeadline": false,
+    "incomplete": 0,
+    "reportedClearanceViolations": 4,
+    "progressSnapshotsChecked": 8,
+    "vias": 14,
+    "wireLengthEditorUnits": 4186.914294961023
+  },
+  {
+    "board": "simple",
+    "engine": "legacy",
+    "elapsedMs": 633,
+    "finishedBeforeDeadline": true,
+    "incomplete": 4,
+    "reportedClearanceViolations": 0,
+    "progressSnapshotsChecked": 0,
+    "vias": 3,
+    "wireLengthEditorUnits": 438626.4678916837
+  },
+  {
+    "board": "simple",
+    "engine": "modern",
+    "elapsedMs": 5133,
+    "finishedBeforeDeadline": false,
+    "incomplete": 0,
+    "reportedClearanceViolations": 0,
+    "progressSnapshotsChecked": 6,
+    "vias": 6,
+    "wireLengthEditorUnits": 484260.6128893208
+  },
+  {
+    "board": "MAIN",
+    "engine": "legacy",
+    "elapsedMs": 5031,
+    "finishedBeforeDeadline": false,
+    "incomplete": 51,
+    "reportedClearanceViolations": 0,
+    "progressSnapshotsChecked": 0,
+    "vias": 12,
+    "wireLengthEditorUnits": 733947.978507476
+  },
+  {
+    "board": "MAIN",
+    "engine": "modern",
+    "elapsedMs": 5167,
+    "finishedBeforeDeadline": false,
+    "incomplete": 76,
+    "reportedClearanceViolations": 0,
+    "progressSnapshotsChecked": 6,
+    "vias": 9,
+    "wireLengthEditorUnits": 371030.3323080284
+  }
+]

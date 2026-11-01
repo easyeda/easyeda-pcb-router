@@ -6,6 +6,15 @@
 	<property name="build" value=".build" />
 	<property name="bin" value="${build}/bin" />
 	<property name="compiled" value="${build}/.class" />
+	<property environment="env" />
+	<condition property="worker.java.home" value="${env.FREEROUTING_JAVA_HOME}">
+		<isset property="env.FREEROUTING_JAVA_HOME" />
+	</condition>
+	<property name="worker.java.home" value="${java.home}" />
+	<property name="engine.version" value="2.5.0" />
+	<property name="engine.sha256" value="f6f51bb02245e8e717f9359bd260cc9c5c0b1bc0acc8b7cb2cd5b8ffeb5de3c7" />
+	<property name="engine.jar" value="engine/.cache/freerouting-${engine.version}.jar" />
+	<property name="benchmark.timeout.ms" value="5000" />
 
 	<!-- Macros -->
 
@@ -40,7 +49,7 @@
 				</mapper>
 			</pathconvert>
 			<mkdir dir="${compiled}/@{src}" />
-			<javac srcdir="@{src}" destdir="${compiled}/@{src}" debug="on" encoding="utf-8" includeantruntime="false" excludes="">
+			<javac srcdir="@{src}" destdir="${compiled}/@{src}" release="8" source="8" target="8" debug="on" encoding="utf-8" includeantruntime="false" excludes="">
 				<classpath refid="bin_jars" />
 				<exclude name="test/**" />
 			</javac>
@@ -82,18 +91,77 @@
 		<m_build_bin src="freerouter" />
 	</target>
 
-	<target name="build-web" depends="libs,build-freerouter">
+	<target name="fetch-engine" description="Fetch and verify pinned Freerouting (cached outside clean output)">
+		<mkdir dir="engine/.cache" />
+		<get src="https://github.com/freerouting/freerouting/releases/download/v${engine.version}/freerouting-${engine.version}.jar"
+			dest="${engine.jar}" skipexisting="true" />
+		<checksum file="${engine.jar}" algorithm="SHA-256" property="engine.actual.sha256" />
+		<fail message="Freerouting checksum mismatch. Remove ${engine.jar} and retry fetch-engine.">
+			<condition><not><equals arg1="${engine.actual.sha256}" arg2="${engine.sha256}" /></not></condition>
+		</fail>
+	</target>
+
+	<target name="build-worker" depends="pre,fetch-engine" description="Compile isolated modern worker with Java 25">
+		<mkdir dir="${compiled}/worker" />
+		<javac srcdir="worker" destdir="${compiled}/worker" fork="true"
+			executable="${worker.java.home}/bin/javac" release="25" encoding="utf-8" includeantruntime="false">
+			<classpath><pathelement location="${engine.jar}" /></classpath>
+		</javac>
+		<mkdir dir="${build}/engine" />
+		<jar destfile="${build}/engine/easyeda-worker.jar" basedir="${compiled}/worker">
+			<manifest>
+				<attribute name="Main-Class" value="com.easyeda.worker.ModernWorker" />
+				<attribute name="Class-Path" value="freerouting-${engine.version}.jar" />
+			</manifest>
+		</jar>
+		<copy file="${engine.jar}" todir="${build}/engine" />
+		<copy file="engine/upstream.json" todir="${build}/engine" />
+		<copy file="engine/NOTICE.md" todir="${build}/engine" />
+		<copy file="LICENSE" todir="${build}/engine" />
+	</target>
+
+	<target name="build-web" depends="libs,build-freerouter,build-worker">
 		<m_build_bin src="easyrouter" includes="jetty*.jar,javax*.jar,websocket*.jar,freerouter*.jar" main="com.easyeda.router.RouterServer" />
 		<copydir src="config" dest="${build}/config" />
 		<copydir src="wwwroot" dest="${build}/wwroot" />
 	</target>
 
-	<target name="build-client" depends="libs,build-freerouter">
+	<target name="test" depends="build-web" description="Run routing adapter and protocol regression checks">
+		<mkdir dir="${compiled}/tests" />
+		<javac srcdir="tests" destdir="${compiled}/tests" release="8" source="8" target="8" encoding="utf-8" includeantruntime="false">
+			<classpath refid="bin_jars" />
+		</javac>
+		<java classname="com.easyeda.router.RoutingRegressionTest" fork="true" failonerror="true" timeout="30000" dir="${basedir}">
+			<jvmarg value="-Djava.awt.headless=true" />
+			<classpath>
+				<path refid="bin_jars" />
+				<pathelement location="${compiled}/tests" />
+			</classpath>
+		</java>
+	</target>
+
+	<target name="test-integration" depends="test" description="Route the sample corpus with both engines and check worker lifecycle">
+		<java classname="com.easyeda.router.MigrationIntegrationTest" fork="true" failonerror="true" timeout="600000" dir="${basedir}">
+			<jvmarg value="-Djava.awt.headless=true" />
+			<jvmarg value="-XX:ActiveProcessorCount=1" />
+			<jvmarg value="-Xmx512m" />
+			<arg file="${build}/engine" />
+			<arg file="${build}/migration-results" />
+			<arg value="${benchmark.timeout.ms}" />
+			<classpath>
+				<path refid="bin_jars" />
+				<pathelement location="${compiled}/tests" />
+			</classpath>
+		</java>
+	</target>
+
+	<target name="build-client" depends="libs,build-freerouter,build-worker">
 		<m_build_bin src="easyrouter" includes="jetty*.jar,javax*.jar,websocket*.jar,freerouter*.jar" main="com.easyeda.router.RouterServer" />
 		<m_build_bin src="bootstrap" includes="easyrouter*.jar" main="com.easyeda.bootstrap.AutoRouter" dst="bootstrap.jar" />
 		<property name="clientdir" value="${build}/EasyEDA Router v${version}" />
 		<mkdir dir="${clientdir}"/>
 		<move file="${bin}" tofile="${clientdir}/bin" />
+		<move file="${build}/engine" tofile="${clientdir}/engine" />
 		<copydir src="config" dest="${clientdir}/config" />
 		<mkdir dir="${clientdir}/log" />
 		<copydir src="scripts" dest="${clientdir}" />

@@ -1395,14 +1395,22 @@ public class BoardHandling {
 	}
 
 	public RouterCache waitCurrentCache() throws InterruptedException {
+		RouterCache snapshot = pollCurrentCache();
+		if (snapshot == null) { throw new InterruptedException("No routing snapshot available"); }
+		return snapshot;
+	}
+
+	/** Wait for a snapshot, returning null on timeout and preserving real interruption. */
+	public RouterCache pollCurrentCache() throws InterruptedException {
 		updateFlag.set(true);
 		synchronized (this) {
-			this.wait(1000);
-			if (updateFlag.get()) {
-				throw new InterruptedException();
-			} else {
-				return new RouterCache(inCompletesNum, cache.toString());
+			long deadline = System.nanoTime() + 1000000000L;
+			while (updateFlag.get()) {
+				long remaining = deadline - System.nanoTime();
+				if (remaining <= 0) { return null; }
+				this.wait(Math.max(1, remaining / 1000000L));
 			}
+			return new RouterCache(inCompletesNum, cache.toString());
 		}
 	}
 

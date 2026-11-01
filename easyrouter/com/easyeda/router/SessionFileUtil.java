@@ -43,82 +43,99 @@ public class SessionFileUtil {
 	 * @return 包含所有网络布线数据的 JSON 对象，key 为网络序号（从 "1" 开始）
 	 */
 	public static JObject sessionFileToEasyEDA(String fileData) {
-		JMap netArr = new JMap();
-		if (fileData == null)
-			return netArr;
-		String[] nets = fileData.split("\\(net ");
-		for (int i = 1; i < nets.length; i++) {
-			String[] netNodes = nets[i].split("\n");
-			String netName = netNodes[0].trim();
-			JMap item = new JMap();
-			JArray wires = new JArray();
-			JArray vias = new JArray();
-			item.put("wires", wires);
-			item.put("vias", vias);
-			item.put("net", netName.replace("\"", ""));
-
-			String[] maybeWireArr = nets[i].split("\\(path");
-			for (int j = 1; j < maybeWireArr.length; j++) {
-				String[] lines = maybeWireArr[j].split("\n");
-				String[] wireInfo = lines[0].trim().split(" ");
-				int layerId = parseInt(wireInfo[0].trim());
-				int width = parseInt(wireInfo[1].trim());
-				JMap lineObj = new JMap();
-				JArray linePoints = new JArray();
-				lineObj.put("layerid", layerId);
-				lineObj.put("width", toEasyEDASize(width));
-				lineObj.put("points", linePoints);
-
-				for (int k = 1; k < lines.length; k++) {
-					String[] points = lines[k].trim().split(" ");
-					int ptx = parseInt(points[0].trim());
-					if (points.length == 2 && ptx > 0) {
-						int pty = parseInt(points[1].trim());
-						linePoints.add(toEasyEDASize(ptx));
-						linePoints.add(toEasyEDASize(pty));
-					}
-				}
-				wires.add(lineObj);
-			}
-
-			// net中的过孔
-			String[] maybeVia = nets[i].split("\\(via");
-			for (int j = 1; j < maybeVia.length; j++) {
-				String t = maybeVia[j].trim();
-				t = t.substring(0, t.indexOf("\n")).trim();
-				String[] ts = t.split(" ");
-				if (ts.length != 3)
-					continue;
-				int x = parseInt(ts[1]);
-				int y = parseInt(ts[2]);
-				if (x > 0) {
-					JMap viaObj = new JMap();
-					viaObj.put("x", toEasyEDASize(x));
-					viaObj.put("y", toEasyEDASize(y));
-					vias.add(viaObj);
-				}
-			}
-
-			netArr.put("" + i, item);
-		}
-		return netArr;
-	}
-
-	private static int parseInt(String s) {
-		try {
-			return Integer.parseInt(s);
-		} catch (Exception e) {
-		}
-		return 0;
+		return sessionFileToEasyEDA(fileData, null);
 	}
 
 	/**
-	 * 将 Freerouting 内部坐标转换为 EasyEDA 坐标（除以 1000）。
-	 *
-	 * @param s Freerouting 坐标值
-	 * @return EasyEDA 坐标值
+	 * Convert using the original EasyEDA DSN's resolution as the reference.
+	 * This retains the historical /1000 editor convention when both match,
+	 * while handling upstream SES output expressed in different units/resolution.
 	 */
-	private static double toEasyEDASize(double s) {
-		return s / 1000;
+	public static JObject sessionFileToEasyEDA(String fileData, String sourceDsn) {
+		JMap nets = new JMap();
+		if (fileData == null) {
+			return nets;
+		}
+		Specctra.Node session = Specctra.parse(fileData);
+		if (!session.named("session")) {
+			throw new IllegalArgumentException("Expected a Specctra session");
+		}
+		Specctra.Node routes = session.child("routes");
+		if (routes == null || routes.child("network_out") == null) {
+			throw new IllegalArgumentException("Missing SES routes/network_out");
+		}
+		Specctra.Node source = sourceDsn == null ? null : Specctra.parse(sourceDsn);
+		Specctra.Node inputResolution = source == null ? null : source.child("resolution");
+		Specctra.Node outputResolution = routes.child("resolution");
+		double scale = 0.001;
+		if (outputResolution != null) {
+			double inputRes = inputResolution == null ? 10 : positive(inputResolution.atom(2));
+			double inputUnit = inputResolution == null ? 1 : mils(inputResolution.atom(1));
+			scale *= inputRes / positive(outputResolution.atom(2)) * mils(outputResolution.atom(1)) / inputUnit;
+		}
+		int index = 0;
+		for (Object value : routes.child("network_out").values) {
+			if (!(value instanceof Specctra.Node) || !((Specctra.Node) value).named("net")) { continue; }
+			Specctra.Node net = (Specctra.Node) value;
+			JMap item = new JMap();
+			JArray wires = new JArray();
+			JArray vias = new JArray();
+			item.put("net", net.atom(1));
+			item.put("wires", wires);
+			item.put("vias", vias);
+			for (Object child : net.values) {
+				if (!(child instanceof Specctra.Node)) { continue; }
+				Specctra.Node node = (Specctra.Node) child;
+				if (node.named("wire")) {
+					Specctra.Node path = node.child("path");
+					if (path == null || path.values.size() < 7 || (path.values.size() - 3) % 2 != 0) {
+						throw new IllegalArgumentException("Unsupported or malformed SES wire path");
+					}
+					JMap wire = new JMap();
+					wire.put("layerid", layer(path.atom(1)));
+					wire.put("width", positive(path.atom(2)) * scale);
+					JArray points = new JArray();
+					for (int i = 3; i < path.values.size(); i++) {
+						points.add(Specctra.number(path.atom(i)) * scale);
+					}
+					wire.put("points", points);
+					wires.add(wire);
+				} else if (node.named("via")) {
+					JMap via = new JMap();
+					via.put("x", Specctra.number(node.atom(2)) * scale);
+					via.put("y", Specctra.number(node.atom(3)) * scale);
+					vias.add(via);
+				}
+			}
+			nets.put(String.valueOf(++index), item);
+		}
+		return nets;
+	}
+
+	private static int layer(String name) {
+		try {
+			int id = Integer.parseInt(name);
+			if (id > 0) { return id; }
+		} catch (NumberFormatException e) { /* Named copper layers below. */ }
+		if (name.equalsIgnoreCase("TopLayer") || name.equalsIgnoreCase("F.Cu")) { return 1; }
+		if (name.equalsIgnoreCase("BottomLayer") || name.equalsIgnoreCase("B.Cu")) { return 2; }
+		if (name.matches("(?i)InnerLayer[1-9][0-9]*")) {
+			return 20 + Integer.parseInt(name.substring(10));
+		}
+		throw new IllegalArgumentException("Unknown EasyEDA copper layer: " + name);
+	}
+
+	private static double positive(String value) {
+		double number = Specctra.number(value);
+		if (number <= 0) { throw new IllegalArgumentException("Expected positive Specctra value"); }
+		return number;
+	}
+
+	private static double mils(String unit) {
+		if (unit.equalsIgnoreCase("mil")) { return 1; }
+		if (unit.equalsIgnoreCase("inch")) { return 1000; }
+		if (unit.equalsIgnoreCase("mm")) { return 1000.0 / 25.4; }
+		if (unit.equalsIgnoreCase("um")) { return 1.0 / 25.4; }
+		throw new IllegalArgumentException("Unsupported Specctra unit: " + unit);
 	}
 }

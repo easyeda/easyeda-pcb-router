@@ -19,9 +19,10 @@ public interface RoutingClient {
 	 * @param resultCode      结果码 / Result code:
 	 *                        <ul>
 	 *                          <li>{@code  1} — 布线全部完成 / Routing completed successfully</li>
-	 *                          <li>{@code  0} — 超时未完成 / Timed out before completion</li>
+	 *                          <li>{@code  0} — 未完成 / Partial result, including timeout</li>
 	 *                          <li>{@code -1} — 服务器忙 / Server busy (thread pool full)</li>
 	 *                          <li>{@code -2} — 无法打开输入文件 / Failed to open DSN input</li>
+	 *                          <li>{@code -3} — 引擎或转换失败 / Engine or session conversion failure</li>
 	 *                        </ul>
 	 * @param inCompleteNetNum 未完成连接数 / Number of incomplete net connections (-1 if unknown)
 	 * @param sesFileData      Specctra Session 文件文本，为 null 表示无数据 / Specctra SES file text, null if unavailable

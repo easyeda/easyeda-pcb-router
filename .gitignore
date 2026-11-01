@@ -1,2 +1,6 @@
 /bin/
 /.build/
+/engine/.cache/
+__pycache__/
+/worker/.class/
+/worker/freerouting.jar
