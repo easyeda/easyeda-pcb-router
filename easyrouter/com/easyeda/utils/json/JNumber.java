@@ -2,7 +2,6 @@ package com.easyeda.utils.json;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Locale;
 
 public final class JNumber extends JObject {
 
@@ -51,9 +50,9 @@ public final class JNumber extends JObject {
 			num = inner_number;
 		}
 		if (num % 1 == 0) {
-			w.write(String.format(Locale.ENGLISH, "%d", (long) num));
+			w.write(Long.toString((long) num));
 		} else {
-			w.write(String.format(Locale.ENGLISH, "%g", num));
+			w.write(Double.toString(num));
 		}
 	}
 }

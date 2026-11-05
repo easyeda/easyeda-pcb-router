@@ -1,32 +1,21 @@
 package com.easyeda.router;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.security.InvalidParameterException;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import com.easyeda.router.engine.EngineFactory;
+import com.easyeda.router.engine.EngineInputException;
+import com.easyeda.router.engine.RoutingEngine;
+import com.easyeda.router.engine.RoutingSnapshot;
 import com.easyeda.utils.Config;
 import com.easyeda.utils.json.JObject;
-
-import board.BoardObservers;
-import board.Component;
-import board.Item;
-import board.ItemIdNoGenerator;
-import board.TestLevel;
-import designformats.specctra.DsnFile.ReadResult;
-import interactive.AutorouteSettings;
-import interactive.BoardHandling;
-import interactive.RouterCache;
 
 /**
  * PCB 自动布线执行器，在独立线程中运行 Freerouting 引擎。
  * <p>
  * 核心流程：
  * <ol>
- *   <li>导入 DSN 设计文件到 {@link BoardHandling}</li>
- *   <li>启动批量自动布线 {@link BoardHandling#start_batch_autorouter()}</li>
+ *   <li>导入 DSN 设计文件到 {@link RoutingEngine}</li>
+ *   <li>启动批量自动布线 {@link RoutingEngine#start()}</li>
  *   <li>以 500ms 间隔轮询布线状态，期间发送心跳和进度</li>
  *   <li>布线完成或超时后，导出 Specctra Session 文件并通过 {@link RoutingClient} 回传结果</li>
  * </ol>
@@ -37,9 +26,9 @@ import interactive.RouterCache;
  *
  * @see WSHandler
  * @see RoutingClient
- * @see BoardHandling
+ * @see RoutingEngine
  */
-public class RouterExecutor implements Runnable, BoardObservers {
+public class RouterExecutor implements Runnable {
 
 	/** 使用单调时钟避免系统时间调整的影响 / Monotonic clock to avoid system time adjustments */
 	private static long currentTimeMillis() {
@@ -47,7 +36,7 @@ public class RouterExecutor implements Runnable, BoardObservers {
 	}
 
 	private final RoutingClient client;
-	private final BoardHandling bh;
+	private final RoutingEngine engine;
 	private final byte[] dsnFile;
 	/** 布线超时时间（毫秒）/ Routing timeout in milliseconds */
 	private final int timeout;
@@ -56,7 +45,8 @@ public class RouterExecutor implements Runnable, BoardObservers {
 	/** 心跳发送间隔（毫秒）/ Heartbeat send interval in milliseconds */
 	private final int heatbeatInterval;
 
-	private volatile Thread myThread;
+	private Thread myThread;
+	private volatile boolean cancelled;
 	private volatile long start;
 	private volatile long deadline;
 	private volatile long nextHeartbeat;
@@ -75,16 +65,28 @@ public class RouterExecutor implements Runnable, BoardObservers {
 	 * @param optimizeTimes    布线后优化次数，0 表示使用默认值 3 / Post-route optimization passes, 0 defaults to 3
 	 */
 	public RouterExecutor(RoutingClient client, byte[] dsnFile, int timeout, int progressInterval, int optimizeTimes) {
-		JObject router = Config.get("main.json").get("router");
-		this.heatbeatInterval = router.get("keep_heartbeat").asInt();
-		int minTimeout = router.get("min_timeout").asInt();
-		int minProgressInterval = router.get("min_progress_interval").asInt();
-		AutorouteSettings.maxRouteRetry = router.get("max_route_retry").asInt();
+		this(client, dsnFile, timeout, progressInterval, optimizeTimes,
+				Config.get("main.json").get("router"));
+	}
+
+	private RouterExecutor(RoutingClient client, byte[] dsnFile, int timeout, int progressInterval,
+			int optimizeTimes, JObject router) {
+		this(client, dsnFile, Math.max(timeout, router.get("min_timeout").asInt()),
+				progressInterval == 0 ? 0 : Math.max(progressInterval, router.get("min_progress_interval").asInt()),
+				router.get("keep_heartbeat").asInt(),
+				EngineFactory.create(router, optimizeTimes, Math.max(timeout, router.get("min_timeout").asInt()),
+						Math.max(progressInterval, router.get("min_progress_interval").asInt())));
+	}
+
+	// Engine injection also permits lifecycle regression checks without routing a board.
+	RouterExecutor(RoutingClient client, byte[] dsnFile, int timeout, int progressInterval,
+			int heartbeatInterval, RoutingEngine engine) {
 		this.client = client;
-		this.bh = new BoardHandling(Locale.ENGLISH, optimizeTimes > 0 ? optimizeTimes : 3);
+		this.engine = engine;
 		this.dsnFile = dsnFile;
-		this.timeout = Math.max(timeout, minTimeout);
-		this.progressInterval = Math.max(progressInterval, minProgressInterval);
+		this.timeout = timeout;
+		this.progressInterval = progressInterval;
+		this.heatbeatInterval = heartbeatInterval;
 	}
 
 	/**
@@ -92,8 +94,11 @@ public class RouterExecutor implements Runnable, BoardObservers {
 	 * <p>
 	 * Interrupt the routing thread to cancel the operation.
 	 */
-	public void interrupt() {
-		myThread.interrupt();
+	public synchronized void interrupt() {
+		cancelled = true;
+		if (myThread != null) {
+			myThread.interrupt();
+		}
 	}
 
 	/**
@@ -106,101 +111,90 @@ public class RouterExecutor implements Runnable, BoardObservers {
 	 */
 	@Override
 	public void run() {
-		myThread = Thread.currentThread();
-
-		try (InputStream is = new ByteArrayInputStream(dsnFile)) {
-			// send a heart beat first to make sure connection is alive
-			// because this executor may pending when server is busy
-			client.sendRaw("{\"a\":\"heartbeat\"}\n");
-
-			ReadResult read_result = bh.import_design(is, this, new ItemIdNoGenerator(), TestLevel.RELEASE_VERSION);
-			if (read_result != ReadResult.OK) {
-				throw new InvalidParameterException();
+		synchronized (this) {
+			if (cancelled) {
+				return;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			client.sendResult(-2, -1, null);
+			myThread = Thread.currentThread();
 		}
 
 		try {
+			client.sendRaw("{\"a\":\"heartbeat\"}\n");
+			if (cancelled) {
+				return;
+			}
+			try {
+				engine.load(dsnFile);
+			} catch (Exception e) {
+				if (!cancelled) {
+					e.printStackTrace();
+					client.sendResult(-2, -1, null);
+				}
+				return;
+			}
+			if (cancelled) {
+				return;
+			}
+
 			start = currentTimeMillis();
 			deadline = start + timeout;
 			nextHeartbeat = start + heatbeatInterval;
 			nextReportProgress = start + progressInterval;
-			bh.start_batch_autorouter();
+			engine.start();
 
-			while (!Thread.interrupted()) {
+			while (!cancelled && !Thread.currentThread().isInterrupted()) {
 				long current = currentTimeMillis();
-				if (bh.isFinished) {
-					bh.terminate();
-					ByteArrayOutputStream os = new ByteArrayOutputStream();
-					bh.export_specctra_session_file("tmp", os);
-					client.sendResult(1, bh.getInCompletesNum(), os.toString());
-					break;
-				} else if (bh.exception != null) {
-					throw bh.exception;
-				} else if (deadline > current) {
-					if (current >= nextHeartbeat) {
-						nextHeartbeat = current + heatbeatInterval;
-						client.sendRaw("{\"a\":\"heartbeat\"}\n");
-					} else if (current >= nextReportProgress) {
-						nextReportProgress = current + progressInterval;
-						try {
-							RouterCache cache = bh.waitCurrentCache();
-							client.sendProgress(cache.inCompletesNum, cache.data);
-							nextHeartbeat = current + heatbeatInterval;
-						} catch (InterruptedException ie) {
-							// ignore
-						}
-					}
-				} else {
-					bh.terminate();
-					ByteArrayOutputStream os = new ByteArrayOutputStream();
-					bh.export_specctra_session_file("tmp", os);
-					client.sendResult(1, bh.getInCompletesNum(), os.toString());
+				if (engine.isFinished()) {
+					sendFinalSnapshot();
 					break;
 				}
-
-				Thread.sleep(500);
+				Exception failure = engine.failure();
+				if (failure != null) {
+					throw failure;
+				}
+				if (current >= deadline) {
+					sendFinalSnapshot();
+					break;
+				}
+				if (current >= nextHeartbeat) {
+					nextHeartbeat = current + heatbeatInterval;
+					client.sendRaw("{\"a\":\"heartbeat\"}\n");
+				}
+				if (progressInterval > 0 && current >= nextReportProgress) {
+					nextReportProgress = current + progressInterval;
+					RoutingSnapshot snapshot = engine.awaitProgress();
+					if (!cancelled && snapshot != null) {
+						client.sendProgress(snapshot.incompleteConnections, snapshot.sessionData);
+						nextHeartbeat = current + heatbeatInterval;
+					}
+				}
+				if (!cancelled) {
+					Thread.sleep(500);
+				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			client.sendResult(-1, -1, null);
+			if (!cancelled) {
+				e.printStackTrace();
+				client.sendResult(e instanceof EngineInputException ? -2 : -3, -1, null);
+			}
 		} finally {
 			try {
-				bh.terminate();
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
+				engine.stop();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			} finally {
+				synchronized (this) {
+					myThread = null;
+				}
 			}
 		}
 	}
 
-	@Override
-	public void notify_deleted(Item p_object) {
-	}
-
-	@Override
-	public void notify_changed(Item p_object) {
-	}
-
-	@Override
-	public void notify_new(Item p_object) {
-	}
-
-	@Override
-	public void activate() {
-	}
-
-	@Override
-	public void deactivate() {
-	}
-
-	@Override
-	public boolean is_active() {
-		return false;
-	}
-
-	@Override
-	public void notify_moved(Component p_component) {
+	private void sendFinalSnapshot() throws Exception {
+		engine.stop();
+		RoutingSnapshot snapshot = engine.snapshot();
+		if (!cancelled) {
+			client.sendResult(snapshot.incompleteConnections == 0 ? 1 : 0, snapshot.incompleteConnections, snapshot.sessionData);
+		}
 	}
 }

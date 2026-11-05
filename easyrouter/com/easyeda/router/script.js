@@ -64,7 +64,7 @@ easyeda.AutoRouter=(function(){
      * @param {string} dsnData           Specctra DSN 格式的设计数据 / DSN file content string
      * @param {number} timeout           最大布线时间（秒）/ Max routing time in seconds
      * @param {number} progressInterval  中间结果推送间隔（秒），0 表示不推送 / Progress interval in seconds, 0 to disable
-     * @param {number} optimizeTime      布线后优化时间（秒）/ Post-route optimization time in seconds
+     * @param {number} optimizeTime      布线后优化次数 / Maximum post-route optimization passes
      * @throws {string} 如果上一个连接未关闭 / If previous connection is still open
      */
     AutoRouter.prototype.requestRoute=function(dsnData,timeout,progressInterval,optimizeTime){
@@ -112,6 +112,7 @@ easyeda.AutoRouter=(function(){
     AutoRouter.RESULT_CODE_NOT_COMPLETE = 0;  //结果码, 表示因为超时中断,布线并未完成.
     AutoRouter.RESULT_CODE_SERVER_BUSY = -1;  //结果码, 表示服务器正在同时布线的进程进达上限,提醒用户稍候重试
     AutoRouter.RESULT_CODE_ERROR_OPEN_FILE = -2;  //结果码, 服务器无法打开该文件
+    AutoRouter.RESULT_CODE_ERROR_ROUTING = -3;  //引擎执行或结果转换失败 / Engine or session conversion failure
     return AutoRouter;
 })();
 

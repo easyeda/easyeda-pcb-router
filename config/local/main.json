@@ -5,9 +5,15 @@
 		"idle": 60000
 	},
 	"router": {
-		"min_timeout": 300000,
+		"min_timeout": 1600000,
 		"min_progress_interval": 2000,
 		"keep_heartbeat": 5000,
-		"max_route_retry": 4
+		"max_route_retry": 16,
+		"engine": "modern",
+		"max_active_jobs": 1,
+		"max_queued_jobs": 4,
+		"worker_threads": 2,
+		"worker_heap_mb": 1024,
+		"worker_stop_grace_ms": 5000
 	}
 }

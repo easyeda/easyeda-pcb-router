@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>easyeda-modern-worker</name>
+	<buildSpec><buildCommand><name>org.eclipse.jdt.core.javabuilder</name></buildCommand></buildSpec>
+	<natures><nature>org.eclipse.jdt.core.javanature</nature></natures>
+	<linkedResources><link><name>freerouting.jar</name><type>1</type><locationURI>PARENT-1-PROJECT_LOC/engine/.cache/freerouting-2.5.0.jar</locationURI></link></linkedResources>
+</projectDescription>

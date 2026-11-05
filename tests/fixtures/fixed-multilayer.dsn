@@ -1,0 +1,29 @@
+(pcb fixed_multilayer
+  (resolution mil 10)
+  (structure
+    (layer 1 (type signal))
+    (layer 21 (type signal))
+    (layer 22 (type signal))
+    (layer 2 (type signal))
+    (boundary (rect pcb 0 0 1000 1000))
+    (via via0)
+    (rule (width 20) (clearance 10)))
+  (placement (component pads (place U1 0 0 front 0)))
+  (library
+    (image pads
+      (pin outer A 100 100)
+      (pin outer B 900 100)
+      (pin inner C 100 900)
+      (pin inner D 900 900))
+    (padstack outer (shape (circle 1 60)))
+    (padstack inner (shape (circle 21 60)))
+    (padstack via0
+      (shape (circle 1 40))
+      (shape (circle 21 40))
+      (shape (circle 22 40))
+      (shape (circle 2 40))))
+  (network
+    (net FIXED (pins U1-A U1-B))
+    (net "ROUTE_测试" (pins U1-C U1-D)))
+  (wiring
+    (wire (path 1 20 100 100 900 100) (net FIXED) (type protect))))
